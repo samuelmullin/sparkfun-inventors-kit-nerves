@@ -16,7 +16,6 @@ defmodule Circuit2c.SimonServer do
 
   def start(opts \\ []) do
     %{mode: mode} = Enum.into(opts, @default_settings)
-    Logger.info("Simon Server starting mode: #{mode}")
     GenServer.call(__MODULE__, {:start, mode})
   end
 
@@ -85,7 +84,6 @@ defmodule Circuit2c.SimonServer do
 
   @impl true
   def handle_call(:next_sequence, _from, %{master_sequence: master_sequence, mode: :single} = state) do
-    Logger.info("Simonserver - next_sequence single")
     master_sequence = master_sequence ++ [Enum.random(@buttons)]
     {:reply, master_sequence, Map.merge(state, %{game_status: :next_button, master_sequence: master_sequence, round_sequence: master_sequence})}
   end
