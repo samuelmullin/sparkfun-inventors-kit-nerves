@@ -40,7 +40,8 @@ defmodule Circuit2c.SimonServer do
     GenServer.call(__MODULE__, :end_game)
   end
 
-  # Callbacks
+  # GenServer Callbacks
+
   @impl true
   def init(_) do
     Process.send_after(self(), :tick_timer, 100)
@@ -119,11 +120,11 @@ defmodule Circuit2c.SimonServer do
 
   @impl true
   def handle_cast(:timer_loss, state) do
-    Logger.info("TIMER LOSS")
     {:noreply, Map.merge(state, %{game_status: :lose, lose_at: nil})}
   end
 
-  ## Private Implementation
+  # Private Implementation
+
   defp validate_input(input, expected, remaining, master, :single)
     when input == expected and length(remaining) == 0 and length(master) >=  @max_sequence, do: :win
   defp validate_input(input, expected, remaining, _master, :single)

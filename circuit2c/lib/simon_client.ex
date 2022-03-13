@@ -24,11 +24,9 @@ defmodule Circuit2c.SimonClient do
   # GenServer Callbacks
   @impl true
   def init(_) do
-    Logger.info("Gpios: #{inspect @gpio_names}")
     # Initialize GPIOs for button/led for each colour
     gpios = Enum.reduce(@colours, %{}, fn colour, acc ->
 
-      Logger.info("Initializing Colour: #{colour}")
       {:ok, input_gpio} = GPIO.open(input_pin(colour), :input, pull_mode: :pullup)
       Circuits.GPIO.set_interrupts(input_gpio, :both)
       {:ok, led_gpio} = GPIO.open(led_pin(colour), :output)
@@ -81,7 +79,6 @@ defmodule Circuit2c.SimonClient do
 
   # Private Implementation
   defp start_game(gpios) do
-    Logger.info("Starting game from client")
     mode = Circuits.GPIO.read(gpios[:mode][:input_gpio])
     |> mode()
 
@@ -93,8 +90,6 @@ defmodule Circuit2c.SimonClient do
     Process.sleep(100) # debounce
     case SimonServer.game_status() do
       :next_sequence ->
-        Logger.info("game_status returned :next_sequence")
-
         # Set waiting state and pause momentarily
         GenServer.call(__MODULE__, :waiting)
         Process.sleep(500)
@@ -106,26 +101,20 @@ defmodule Circuit2c.SimonClient do
       :next_button ->
         game_loop(gpios)
       :win ->
-        Logger.info("game_status returned :win")
         win_sequence(gpios)
       :lose ->
-        Logger.info("game_status returned :lose")
         lose_sequence(gpios)
       :done ->
-        Logger.info("game_status returned :done")
+        :ok
     end
-    Logger.info("Starting new game")
+
+    # The game ended, start it again!
     start_game(gpios)
     game_loop(gpios)
   end
 
-  defp handle_gpio_state(:reset, 1, _, _gpios) do
-    Logger.info("Reset up!")
-    :ok
-  end
-
+  defp handle_gpio_state(:reset, 1, _, _gpios), do: :ok
   defp handle_gpio_state(:reset, _, _, _gpios) do
-    Logger.info("Reset down!")
     end_game()
   end
   defp handle_gpio_state(colour, 0, :accept_input, gpios) when colour in @colours, do: select_colour(colour, gpios)
@@ -133,21 +122,14 @@ defmodule Circuit2c.SimonClient do
     deselect_colour(colour, gpios)
     SimonServer.validate_input(colour)
   end
-  defp handle_gpio_state(name, _, _, _) do
-    Logger.info("Skipping handling gpio state; Name: #{name}")
-    :ok
-  end
+  defp handle_gpio_state(name, _, _, _), do: :ok
 
-  defp end_game() do
-    GenServer.call(SimonServer, :end_game)
-  end
+  defp end_game(), do: SimonServer.end_game()
 
   defp handle_sequence(:win, gpios), do: win_sequence(gpios)
   defp handle_sequence(sequence, gpios) do
     sequence
     |> play_sequence(gpios)
-
-    Logger.info("Sequence: #{inspect(sequence)}")
 
     # Reset timer and accept input
     SimonServer.reset_timer()
