@@ -17,7 +17,7 @@ Our connections look like this:
 
 We setup our LEDs bridging the left and right sides of the breadboard.  The cathode is on the right side and the annode is on the left.  On the right side, we connect our GPIOs using jumpers.  One LED is connected to GPIO 26.  The other is connected to GPIO 19.  On the right side, we use our 330ohm resistor to bridge to the GND rail, and we connect the GND on the pi to the GND rail as well.
 
-We then set our (target)[https://hexdocs.pm/nerves/targets.html#content] - for me, this is:
+We then set our [target](https://hexdocs.pm/nerves/targets.html#content) - for me, this is:
 `MIX_TARGET=rpi0`
 
 We can then create our firmware:
@@ -36,14 +36,14 @@ After 30 seconds or so, you should see the LED connected via GPIO 26 start blink
 
 Our Circuit1A app will serve as the framework we'll use to build our subsequent circuits, so we'll cover the moving parts in a bit more detail.
 
-In our [mix.exs](./mix.exs) we specify a `mod` for our `application` - this tells Elixir which module should start when we start the application.  In our case, we are going to start the module Circuit1a. In turn, Circuit1a will start a [Supervisor](./lib/supervisor.ex) which will then kick off two child processes, [blink](./lib/blink.ex) and [morse](./lib/morse.ex), each of which consists of a [GenServer](https://hexdocs.pm/elixir/1.12/GenServer.html) with a publically available API. 
+In our (mix.exs)[./mix.exs] we specify a `mod` for our `application` - this tells Elixir which module should start when we start the application.  In our case, we are going to start the module Circuit1a. In turn, Circuit1a will start a [Supervisor](./lib/supervisor.ex) which will then kick off two child processes, [blink](./lib/blink.ex) and [morse](./lib/morse.ex), each of which consists of a [GenServer](https://hexdocs.pm/elixir/1.12/GenServer.html) with a publically available API. 
 
 When we ssh into our device with the application running, we get an interactive elixir shell that we can use to interact with the Public API for the blink and morse modules.
 
 ### Blink
 
-On startup, the Blink module kicks off a loop that blinks our LED with a base time unit of 500ms - that is, it turns the light on for 500ms, then off for 500ms.  This was the basic circuit required for Circuit1A.  As part of the challenges, we have also exposed a function (Circuit1a.Blink.change_blink_ms/1) that accepts an integer value that represents the new base time unit for the blink cycle.
+On startup, the Blink module kicks off a loop that blinks our LED with a base time unit of 500ms - that is, it turns the light on for 500ms, then off for 500ms.  This was the basic circuit required for Circuit1A.  As part of the challenges, we have also exposed a function (Circuit1a.Blink.change_blink_ms/1)[] that accepts an integer value that represents the new base time unit for the blink cycle.
 
 ### Morse
 
-The Morse module tackles another challenge for Circuit1a.  On startup, it initializes our GPIO pin and then waits for the user to send a message via Circuit1a.Morse.blink_morse/1.  When it receives a string via this function, it downcases the string, splits it into characters and then creates a list of values (dots, dashes and pauses) which it then feeds through into an algorithm that blinks the connected LED appropriately.
+The Morse module tackles another challenge for Circuit1a.  On startup, it initializes our GPIO pin and then waits for the user to send a message via (Circuit1a.Morse.blink_morse/1)[].  When it receives a string via this function, it downcases the string, splits it into characters and then creates a list of values (dots, dashes and pauses) which it then feeds through into an algorithm that blinks the connected LED appropriately.

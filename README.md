@@ -16,9 +16,9 @@ While they have a similar form factor, there are some key differences between th
 
 ## Getting Started
 
-My instructions work for my case  - that is, I am using elixir and nerves on an M1 Macbook running Monterey.  You might find some of the instructions don't work perfectly for you if this is not your scenario.  In order to use nerves, we have to take a number of steps.  I will presuppose that we have homebrew installed, but if you don’t you can follow the instructions (here)[https://brew.sh/].
+My instructions work for my case  - that is, I am using elixir and nerves on an M1 Macbook running Monterey.  You might find some of the instructions don't work perfectly for you if this is not your scenario.  In order to use nerves, we have to take a number of steps.  I will presuppose that we have homebrew installed, but if you don’t you can follow the instructions [here](https://brew.sh/).
 
-We will also use (asdf)[https://asdf-vm.com/] to manage Elixir and Erlang versions.
+We will also use [asdf](https://asdf-vm.com/) to manage Elixir and Erlang versions.
 
 First thing we are going to install a few packages we will depend on for nerves:
 
@@ -77,5 +77,5 @@ PING nerves.local (172.31.245.197): 56 data bytes
 64 bytes from 172.31.245.197: icmp_seq=0 ttl=64 time=0.972 ms
 ```
 
-Welcome to the wonderful world of Nerves!  If you're ready to get building, you can move on to (circuit1a)[./circuit1a]!
+Welcome to the wonderful world of Nerves!  If you're ready to get building, you can move on to [circuit1a](./circuit1a)!
 
