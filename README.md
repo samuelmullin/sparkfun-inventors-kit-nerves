@@ -2,6 +2,19 @@
 
 This repo is my attempt to recreate the circuits from the [Sparkfun Inventors Kit](https://www.sparkfun.com/products/15267) using [Nerves](https://www.nerves-project.org/) on a Raspberry Pi Zero.
 
+## How to use this Repo
+
+The [Sparkfun Inventors Kit](https://www.sparkfun.com/products/15267) has 12 circuits defined.  Each circuit is contained in it's own folder and has:
+
+- A wiring diagram for the Pi Zero including any extra hardware or modifications that were required to run the project using Nerves
+- A complete application that can be used to build and burn firmware onto your device
+- A high level explanation of the application logic including any new concepts that are being introduced and where this circuit deviates from the Sparkfun circuit.
+
+## Pi Hardware limitations
+
+While they have a similar form factor, there are some key differences between the Arduio and the Raspberry Pi platform.  One of the key differences for the purposes of the Inventors Kit is the lack of analog inputs on the Pi. In some cases, we will use an Analog-Digital Converter (ADC) to interface with an analog sensor, in others we will use a replacement sensor that interfaces via SPI or I2c, and in others we will completely remove or replace the functionality.  A complete hardware list is included below along with links to recommended replacement parts.
+
+## Getting Started
 
 My instructions work for my case  - that is, I am using elixir and nerves on an M1 Macbook running Monterey.  You might find some of the instructions don't work perfectly for you if this is not your scenario.  In order to use nerves, we have to take a number of steps.  I will presuppose that we have homebrew installed, but if you don’t you can follow the instructions (here)[https://brew.sh/].
 
@@ -42,7 +55,7 @@ mix nerves.new hello_nerves
 export MIX_TARGET=rpi0
 ```
 
-Finally, we will hop into our project directory, install our project dependencies, generate a firmware and burn that firmware to an attached SD card.
+The first time around we will need to burn the firmware directly to an attached SD card.  After this initial burn, we can burn the SD card while it's inserted into the running nerves device.
 
 ```bash
 mix firmware
