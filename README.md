@@ -77,5 +77,5 @@ PING nerves.local (172.31.245.197): 56 data bytes
 64 bytes from 172.31.245.197: icmp_seq=0 ttl=64 time=0.972 ms
 ```
 
-Welcome to the wonderful world of Nerves!  If you're ready to get building, you can move on to [circuit1a](./circuit1a)!
+Welcome to the wonderful world of Nerves!  If you're ready to get building, you can move on to [circuit1a](./circuit1a/README.md)!
 
