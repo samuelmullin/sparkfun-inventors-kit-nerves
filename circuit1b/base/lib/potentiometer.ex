@@ -58,8 +58,8 @@ defmodule Circuit1b.Potentiometer do
     blink_led(led_gpio)
   end
 
-  defp adc1115_address, do: Applicaiton.get_env(:circuit2b, :adc1115_address)
-  defp max_reading, do: Application.get_env(:circuit2b, :max_reading)
-  defp led_pin, do: Application.get_env(:circuit2b, :led_pin)
+  defp adc1115_address, do: Application.get_env(:circuit1b, :adc1115_address)
+  defp max_reading, do: Application.get_env(:circuit1b, :max_reading)
+  defp led_pin, do: Application.get_env(:circuit1b, :led_pin)
 
 end
