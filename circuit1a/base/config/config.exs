@@ -26,6 +26,9 @@ config :nerves, source_date_epoch: "1645994058"
 
 config :logger, backends: [RingLogger]
 
+config :circuit1a,
+  blink_output_gpio: 26
+
 if Mix.target() == :host or Mix.target() == :"" do
   import_config "host.exs"
 else

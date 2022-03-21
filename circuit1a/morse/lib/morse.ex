@@ -4,7 +4,6 @@ defmodule Circuit1a.Morse do
   require Logger
   alias Circuits.GPIO
 
-  @output_pin 19 # output pin that is used for blinking morse
   @morse_time_unit 250  #Base time unit for morse blinks in ms
   @morse_map %{
     "a" => ".-",     "b" => "-...",   "c" => "-.-.",   "d" => "-..",
@@ -18,21 +17,38 @@ defmodule Circuit1a.Morse do
     "7" => "--...",  "8" => "---..",  "9" => "----.",  "0" => "-----",
     "." => ".-.-.-", "," => "--..--", "?" => "..--..", " " => ""
   }
+  @valid_chars Map.keys(@morse_map)
   @word_ending_chars [" ", ".", ",", "?"]
 
   def start_link(state) do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
   end
 
-  # Public API
-  def blink_morse(input_string) do
+  # --- Public API ---
+
+  @doc """
+    Accepts a string and sents an async message to our Genserver attempting to display
+    that string in morse code via a blinking LED.  If the value provided was a string,
+    returns {:ok, value}.  If the value was not a valid string it returns
+    {:error, :invalid_string}.
+
+    We do not guard against characters not in the @morse_map and will simply skip over
+    them during our morse conversion.
+  """
+  def blink_morse(input_string) when is_binary(input_string) do
     GenServer.cast(__MODULE__, {:blink_morse, input_string})
+    {:ok, input_string}
   end
 
-  # Callbacks
+  def blink_morse(value) do
+    Logger.error("Expected string, received #{inspect(value)}")
+    {:error, :invalid_string}
+  end
+
+  # --- Callbacks ---
   @impl true
   def init(_) do
-    {:ok, output_gpio} = GPIO.open(@output_pin, :output)
+    {:ok, output_gpio} = GPIO.open(morse_output_gpio(), :output)
     {:ok, %{output_gpio: output_gpio}}
   end
 
@@ -42,7 +58,7 @@ defmodule Circuit1a.Morse do
     {:noreply, state}
   end
 
-  # Private Implementation
+  # --- Private Implementation ---
   defp string_to_morse(input_string, output_gpio) do
     input_string
     |> String.downcase()
@@ -52,7 +68,7 @@ defmodule Circuit1a.Morse do
     |> Enum.each(fn item -> morse(item, output_gpio) end)
   end
 
-  defp to_morse(char) do
+  defp to_morse(char) when char in @valid_chars do
     morse_chars = Map.get(@morse_map, char)
     |> String.codepoints()
 
@@ -64,6 +80,7 @@ defmodule Circuit1a.Morse do
 
     [morse_chars | [delay_ms] ]
   end
+  defp to_morse(_), do: [] # Just skip invalid characters
 
   defp morse(msec, _) when is_integer(msec), do: Process.sleep(msec)
   defp morse(".", output_gpio), do: blink(1, output_gpio)
@@ -75,5 +92,7 @@ defmodule Circuit1a.Morse do
     GPIO.write(output_gpio, 0)
     Process.sleep(@morse_time_unit)
   end
+
+  defp morse_output_gpio(), do: Application.get_env(:circuit1a, :morse_output_gpio)
 
 end
