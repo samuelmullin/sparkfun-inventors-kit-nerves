@@ -2,48 +2,224 @@
 
 ## Overview
 
-Circuit 1A is focused on blinking an LED, and will serve as a sort of "hello world" project as we learn about building circuits with the Raspberry Pi and Nerves.
+## Hardware
 
-For the included code to work, you will need the following:
+In order to complete this circuit, you'll need the following:
 
-1 x Breadboard
-2 x LED - Colour doesn't really matter here, but we don't want RGB
-2 x 330ohm Resistor
-3 x Jumper cables
+- 1 x Breadboard
+- 1 x LED - Colour doesn't really matter here, but not RGB
+- 1 x 330ohm Resistor
+- 2 x Jumper cables
 
-Keep in mind that the longer leg of an LED is the cathode and is the positive side, which means we'll connect it to our GPIO.  The shorter leg is the annode and is the negative side.  On the far side of the annode, between the LED and the ground, we put our resistors.  The resistors can go on either side of the LED, but I've always put them on the ground side.
 
-Our connections look like this:
+## Wiring
 
-We setup our LEDs bridging the left and right sides of the breadboard.  The cathode is on the right side and the annode is on the left.  On the right side, we connect our GPIOs using jumpers.  One LED is connected to GPIO 26.  The other is connected to GPIO 19.  On the right side, we use our 330ohm resistor to bridge to the GND rail, and we connect the GND on the pi to the GND rail as well.
+[Need a diagram or a picture here]
 
-We then set our [target](https://hexdocs.pm/nerves/targets.html#content) - for me, this is:
-`MIX_TARGET=rpi0`
+Bridge the left and right side of the breadboard with your LED.  The cathode should be on the right side.  Connect the left side of the breadboard to the ground rail on the left side of the breadboard.
 
-We can then create our firmware:
-`mix firmware`
+Connect any ground on the raspberry pi to the ground rail on the right hand side.  Connect GPIO 26 to the same row as the cathode.
 
-At this point we plug in our device (with the SD card inserted).  Make sure you connect the pi via a port that can supply both data and power - in the case of the PI Zero, we connect to the left USB port as the right only supplies power.
+## Application Definition & Dependencies
 
-Now, let's upload our firmware:
-`mix upload`
+The application is defined in  in the [mix.exs file](./mix.exs). This contains a lot of boilerplate, but here are some important sections:
 
-After 30 seconds or so, you should see the LED connected via GPIO 26 start blinking.  We can now connect to the running device to execute commands using our API:
+```elixir
+def application do
+[
+    mod: {Circuit1a, []},
+    extra_applications: [:logger, :runtime_tools]
+]
+end
+```
 
-`mix ssh nerves.local`
+The `application/0` method tells Elixir what modules/appliations should start when this application is started.  The mod attribute in this case contains a tuple that says `Start the Circuit1a module with an empty list of arguments`.  Extra applications says `when this application is started, also start the :logger and :runtime_tools applications`
 
-## Circuit 1A Api
+```elixir
+defp deps do
+[
+    # Dependencies for all targets
+    {:nerves, "~> 1.7.15", runtime: false},
+    {:shoehorn, "~> 0.8.0"},
+    {:ring_logger, "~> 0.8.3"},
+    {:toolshed, "~> 0.2.13"},
+    {:circuits_gpio, "~> 0.4"},
+    # ...
+]
+  end
+```
 
-Our Circuit1A app will serve as the framework we'll use to build our subsequent circuits, so we'll cover the moving parts in a bit more detail.
+The `deps/0` method defines a list of dependencies for this application so mix knows what needs to be installed for it to function.  `Circuit1a` includes one dependency that was not part of the nerves boilerplate: [{:circuits_gpio, "~> 0.4"}](https://github.com/elixir-circuits/circuits_gpio), which is used to interact with the GPIO pins on our target device.
 
-In our (mix.exs)[./mix.exs] we specify a `mod` for our `application` - this tells Elixir which module should start when we start the application.  In our case, we are going to start the module Circuit1a. In turn, Circuit1a will start a [Supervisor](./lib/supervisor.ex) which will then kick off two child processes, [blink](./lib/blink.ex) and [morse](./lib/morse.ex), each of which consists of a [GenServer](https://hexdocs.pm/elixir/1.12/GenServer.html) with a publically available API. 
 
-When we ssh into our device with the application running, we get an interactive elixir shell that we can use to interact with the Public API for the blink and morse modules.
+## Config
 
-### Blink
+The [config](./config/config.exs) for this version of the circuit is simple:
 
-On startup, the Blink module kicks off a loop that blinks our LED with a base time unit of 500ms - that is, it turns the light on for 500ms, then off for 500ms.  This was the basic circuit required for Circuit1A.  As part of the challenges, we have also exposed a function (Circuit1a.Blink.change_blink_ms/1)[] that accepts an integer value that represents the new base time unit for the blink cycle.
+```Elixir
+config :circuit1a,
+  blink_output_gpio: 26
+```
 
-### Morse
+For things like GPIO values, it's tempting to just use module attributes, but getting used to using the config files now will benefit us later when our config will include more values.  It's helpful to be consistent as well.
 
-The Morse module tackles another challenge for Circuit1a.  On startup, it initializes our GPIO pin and then waits for the user to send a message via (Circuit1a.Morse.blink_morse/1)[].  When it receives a string via this function, it downcases the string, splits it into characters and then creates a list of values (dots, dashes and pauses) which it then feeds through into an algorithm that blinks the connected LED appropriately.
+If you do decide to hardcode things like GPIO numbers, you can use [module attributes](https://elixir-lang.org/getting-started/module-attributes.html)
+
+
+## Supervision
+
+The [supervisor](./lib/supervisor.ex) is simple as well.  There's a single child process starting (Circuit1a.Blink), and it specifies a `:one_for_one` strategy, which means if the child process dies, the supervisor will start a new one. 
+
+Since this is the first supervisor, let's take a closer look.  
+
+```elixir
+use Supervisor
+```
+
+Invoking [use](https://elixir-lang.org/getting-started/alias-require-and-import.html#use) tells Elixir that this module is extending the [Supervisor](https://elixir-lang.org/getting-started/mix-otp/supervisor-and-application.html) module.  A supervisor is responsible for monitoring child processes.
+
+
+
+```elixir
+def start_link(opts) do
+  Supervisor.start_link(__MODULE__, :ok, opts)
+end
+```
+
+`start_link/3` is defining what should happen when this module is started.  In this case, it's deferring to [Supervisor.start_link/3](https://hexdocs.pm/elixir/1.12/Supervisor.html#start_link/3)
+
+```elixir
+@impl true
+def init(:ok) do
+children = [
+    Circuit1a.Blink
+]
+
+Supervisor.init(children, strategy: :one_for_one)
+end
+```
+
+`init/1` is defining the list of children and the strategy that should be applied for managing them.  In this case, there is only one child, the module [Circuit1a.Blink](./lib/blink.ex)
+
+
+## Application Logic
+
+The application logic for this circuit is contained in the [Circuit1a.Blink module](./lib/blink.ex).
+
+```elixir
+defmodule Circuit1a.Blink do
+  @moduledoc """
+    This is Circuit 1a (Blinking an LED) from the Sparkfun Inventors Kit written
+    in elixir.  Upon starting, it blinks an LED at a cadence of 500ms.  It has no
+    public API.
+  """
+  use GenServer
+
+  require Logger
+  alias Circuits.GPIO
+
+  @blink_ms 500
+
+  def start_link(state) do
+    GenServer.start_link(__MODULE__, state, name: __MODULE__)
+  end
+```
+
+The first block defines the module and tells Elixir that it will be extending [GenServer](https://hexdocs.pm/elixir/GenServer.html).  It requires Logger, and has an alias to the Circuits.GPIO module.  More info on require, alias and import is available in the [Elixir Docs](https://elixir-lang.org/getting-started/alias-require-and-import.html).  For now it's enough to understand that we can access the Logger module and the GPIO module directly after doing this.
+
+This block also defines a [module attribute](https://elixir-lang.org/getting-started/module-attributes.html) called `@blink_ms` with a value of 500.  This is not configurable and will be used as the interval for blinking the LED.
+
+Finally, this block also defines the `start_link/1` method that is required when extending GenServer.  It starts a GenServer using this module with the name of this module.  This is a common pattern when the expectation is there will only be single instance of this module in a given supervision tree.
+
+
+```elixir
+  # --- Callbacks ---
+  @impl true
+  def init(_) do
+    {:ok, output_gpio} = GPIO.open(output_gpio(), :output)
+    Process.send_after(self(), :led_on, 100)
+    {:ok, %{output_gpio: output_gpio}}
+  end
+
+  @impl true
+  def handle_info(:led_on, %{output_gpio: output_gpio}  = state) do
+    led_on(output_gpio, @blink_ms)
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info(:led_off, %{output_gpio: output_gpio}  = state) do
+    led_off(output_gpio, @blink_ms)
+    {:noreply, state}
+  end
+```
+
+The next block describes the callbacks for this GenServer - what it should do when it starts up, and what type of messages it expects to receive, along with any logic required for handlng those messages.  It's important to note that if a GenServer receives a message that does not match one of these patterns, it will crash.
+
+`init/1` Defines what should happen when the genserver starts up.  It opens the gpio defined in our config, which we access via `output_gpio/0` (more on that later in the private implementation).  Opening the gpio means using the [open/2]() method from the GPIO module to get a reference.  *It's very important to store that reference in the state for the GenServer*, otherwise it will get garbage collected and you will stop receiving messages.
+
+
+`handle_info/2` has two definitions - one in which it receives an `:led_on` and one in which it receives an `:led_off`.  Each of these pulls the GPIO reference out of the state, passes it to a private method to take some action, then returns {:noreply, state}.
+
+It's important to note what doesn't matter in this case is where these messages are coming from - the GenServer only cares about the contents of the message in this case.
+
+```elixir
+ # --- Private Implementation ---
+  defp led_on(output_gpio, blink_ms) do
+    GPIO.write(output_gpio, 1)
+    Process.send_after(self(), :led_off, blink_ms)
+  end
+
+  defp led_off(output_gpio, blink_ms) do
+    GPIO.write(output_gpio, 0)
+    Process.send_after(self(), :led_on, blink_ms)
+  end
+
+  defp output_gpio, do: Application.get_env(:circuit1a, :blink_output_gpio)
+
+end
+```
+
+The last section is the private implementation.  Most of the application logic should live here, hidden from the end user.  Since it's private, there's no implicit contract with the user and it can be changed as often as is necessary.
+
+
+`led_on/2` Accepts an output GPIO and a duration.  It sets the value of that GPIO to 1, then sends a new info message (:led_off) with a delay of blink_ms. 
+
+`led_off/2` Accepts an output GPIO and a duration.  It sets the value of that GPIO to 0, then sends a new info message (:led_on) with a delay of blink_ms.
+
+`output_gpio/0` Uses [Application.get_env/3](https://hexdocs.pm/elixir/1.12/Application.html#get_env/3) to fetch the `:blink_output_gpio` value from our `:circuit1a` config stanza.  If it doesn't find a value, it will implicitly set it to `nil`.
+
+## Building/Uploading Firmware
+
+First, check the target
+
+`echo $MIX_TARGET`
+
+If it's not the expected value, or it's blank, [set the target](https://hexdocs.pm/nerves/targets.html)
+
+`export MIX_TARGET=rpi0`
+
+Then run `mix firmware` from the root directory of the circuit to build the firmware.
+
+Finally, setup the hardware, plug in the device and after it has booted (~30 seconds depending on the model), run `mix upload` to load the firmware onto the device.
+
+The device will reboot and the code from the firmware will be executed.
+
+
+## Troubleshooting
+
+When troubleshooting, the first thing to do is always to check the wiring of your circuit.
+
+- Are the connections correct?  Check that the correct GPIOs have been connected to the breadboard.  Remember that the breadboard has connections across horizontal rows on each side of the board and that could be shorting components that have multiple leads in the same row
+- Is the polarity of the devices correct?  Check that devices that are sensitive to polarity (such as LEDs) are installed in the correct orientation.
+- If there is a resistor in the circuit, is it the correct resistance?  You can verify using the [coloured rings on the side](https://www.calculator.net/resistor-calculator.html)
+  
+Once hardware is ruled out, the first thing to do to verify software is to check the logs.  Logs are obtained by SSHing into the device and using the [Ringlogger library](https://github.com/nerves-project/ring_logger) which is included in the nerves boilerplate.
+
+```bash
+ssh nerves.local
+RingLogger.attach
+RingLogger.next
+```
+
+The logs should give a hint as to why the circuit is not working.  If there is no obvious error, like the GenServer crashing, try replacing the components in the circuit (jumper cables, led, resistor) one at a time.
