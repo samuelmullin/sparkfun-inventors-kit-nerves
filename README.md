@@ -6,13 +6,16 @@ This repo is my attempt to recreate the circuits from the [Sparkfun Inventors Ki
 
 The [Sparkfun Inventors Kit](https://www.sparkfun.com/products/15267) has 12 circuits defined.  Each circuit is contained in it's own folder and has:
 
-- A wiring diagram for the Pi Zero including any extra hardware or modifications that were required to run the project using Nerves
-- A complete application that can be used to build and burn firmware onto your device
+- Wiring info for the Pi Zero including any extra hardware or modifications that were required to run the project using Nerves
+- A complete application that can be used to build and burn firmware onto your device for the base circuit
+- Separate applications that cover the most interesting challenges for that circuit from the Sparkfun guide.
 - A high level explanation of the application logic including any new concepts that are being introduced and where this circuit deviates from the Sparkfun circuit.
 
 ## Pi Hardware limitations
 
-While they have a similar form factor, there are some key differences between the Arduio and the Raspberry Pi platform.  One of the key differences for the purposes of the Inventors Kit is the lack of analog inputs on the Pi. In some cases, we will use an Analog-Digital Converter (ADC) to interface with an analog sensor, in others we will use a replacement sensor that interfaces via SPI or I2c, and in others we will completely remove or replace the functionality.  A complete hardware list is included below along with links to recommended replacement parts.
+While they have a similar form factor, there are some key differences between the Arduio and the Raspberry Pi platform.  One of the key differences for the purposes of the Inventors Kit is the lack of analog inputs on the Pi. 
+
+In some cases, we will use an Analog-Digital Converter (ADC) to interface with an analog sensor, in others we will use a replacement sensor that interfaces via SPI or I2c, and in others we will completely remove or replace the functionality.  A complete [hardware breakdown](./HARDWARE.md) is included along with links to recommended replacement parts.
 
 ## Getting Started
 
