@@ -4,6 +4,19 @@
 
 For this challenge, the GenServer is extended to allow for customization of the blink interval.  This includes exposing a public API that allows the user to update a value in the state of the GenServer.  That value is used instead of the module attribute the original circuit used.  There are no changes to the hardware of the circuit.
 
+## Usage
+
+After [creating and uploading the firmware](../../FIRMWARE.md), ssh into the device and use the public API to change the blink_ms value.
+
+```bash
+ssh nerves.local
+iex(1)> Circuit1a.Blink.change_blink_ms(100)
+```
+
+The LED should begin to blink much faster, and you should see a return value in your console of `{:ok, 100}`
+
+If the LED does not blink as expected, refer to the [Troubleshooting Guide](../../TROUBLESHOOTING.md)
+
 
 ## Hardware
 
