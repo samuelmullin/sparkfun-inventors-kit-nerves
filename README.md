@@ -30,7 +30,7 @@ brew update
 brew install fwup squashfs coreutils xz pkg-config
 ```
 
-Next up we will install our versions of Elixir and Erlang and set them as the default globally:
+Next up we will install our versions of Elixir and Erlang and optionally set them as the default globally:
 
 ```bash
 asdf install erlang 24.2.1
