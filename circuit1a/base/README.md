@@ -2,6 +2,14 @@
 
 ## Overview
 
+This circuit implements a simple GenServer to blink an LED at a cadence of 500ms.
+
+## Usage
+
+After [creating and uploading the firmware](../../FIRMWARE.md), and after a startup time of 30s or so, the LED should blink at a cadence of 500ms.
+
+If the LED does not blink as expected, refer to the [Troubleshooting Guide](../../TROUBLESHOOTING.md)
+
 ## Hardware
 
 In order to complete this circuit, you'll need the following:
@@ -188,38 +196,3 @@ The last section is the private implementation.  Most of the application logic s
 `led_off/2` Accepts an output GPIO and a duration.  It sets the value of that GPIO to 0, then sends a new info message (:led_on) with a delay of blink_ms.
 
 `output_gpio/0` Uses [Application.get_env/3](https://hexdocs.pm/elixir/1.12/Application.html#get_env/3) to fetch the `:blink_output_gpio` value from our `:circuit1a` config stanza.  If it doesn't find a value, it will implicitly set it to `nil`.
-
-## Building/Uploading Firmware
-
-First, check the target
-
-`echo $MIX_TARGET`
-
-If it's not the expected value, or it's blank, [set the target](https://hexdocs.pm/nerves/targets.html)
-
-`export MIX_TARGET=rpi0`
-
-Then run `mix firmware` from the root directory of the circuit to build the firmware.
-
-Finally, setup the hardware, plug in the device and after it has booted (~30 seconds depending on the model), run `mix upload` to load the firmware onto the device.
-
-The device will reboot and the code from the firmware will be executed.
-
-
-## Troubleshooting
-
-When troubleshooting, the first thing to do is always to check the wiring of your circuit.
-
-- Are the connections correct?  Check that the correct GPIOs have been connected to the breadboard.  Remember that the breadboard has connections across horizontal rows on each side of the board and that could be shorting components that have multiple leads in the same row
-- Is the polarity of the devices correct?  Check that devices that are sensitive to polarity (such as LEDs) are installed in the correct orientation.
-- If there is a resistor in the circuit, is it the correct resistance?  You can verify using the [coloured rings on the side](https://www.calculator.net/resistor-calculator.html)
-  
-Once hardware is ruled out, the first thing to do to verify software is to check the logs.  Logs are obtained by SSHing into the device and using the [Ringlogger library](https://github.com/nerves-project/ring_logger) which is included in the nerves boilerplate.
-
-```bash
-ssh nerves.local
-RingLogger.attach
-RingLogger.next
-```
-
-The logs should give a hint as to why the circuit is not working.  If there is no obvious error, like the GenServer crashing, try replacing the components in the circuit (jumper cables, led, resistor) one at a time.

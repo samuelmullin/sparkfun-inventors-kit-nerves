@@ -27,7 +27,7 @@ defmodule Circuit1a.Morse do
   # --- Public API ---
 
   @doc """
-    Accepts a string and sents an async message to our Genserver attempting to display
+    Accepts a string and sends an async message to our Genserver attempting to display
     that string in morse code via a blinking LED.  If the value provided was a string,
     returns {:ok, value}.  If the value was not a valid string it returns
     {:error, :invalid_string}.

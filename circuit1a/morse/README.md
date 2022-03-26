@@ -2,48 +2,175 @@
 
 ## Overview
 
-Circuit 1A is focused on blinking an LED, and will serve as a sort of "hello world" project as we learn about building circuits with the Raspberry Pi and Nerves.
+For this challenge, the blinking LED circuit we created is used to convey messages via morse code.
 
-For the included code to work, you will need the following:
+## Usage
 
-1 x Breadboard
-2 x LED - Colour doesn't really matter here, but we don't want RGB
-2 x 330ohm Resistor
-3 x Jumper cables
+After [creating and uploading the firmware](../../FIRMWARE.md), ssh into the device and use the public API to send messages.
 
-Keep in mind that the longer leg of an LED is the cathode and is the positive side, which means we'll connect it to our GPIO.  The shorter leg is the annode and is the negative side.  On the far side of the annode, between the LED and the ground, we put our resistors.  The resistors can go on either side of the LED, but I've always put them on the ground side.
+```bash
+ssh nerves.local
+iex(1)> Circuit1a.Morse.blink_morse("hello world")
+```
 
-Our connections look like this:
+The LED should blink the message back to you in morse code, and you should see a return in your console of `{:ok, "hello world"}`.  
 
-We setup our LEDs bridging the left and right sides of the breadboard.  The cathode is on the right side and the annode is on the left.  On the right side, we connect our GPIOs using jumpers.  One LED is connected to GPIO 26.  The other is connected to GPIO 19.  On the right side, we use our 330ohm resistor to bridge to the GND rail, and we connect the GND on the pi to the GND rail as well.
+If the LED does not blink as expected, refer to the [Troubleshooting Guide](../../TROUBLESHOOTING.md)
 
-We then set our [target](https://hexdocs.pm/nerves/targets.html#content) - for me, this is:
-`MIX_TARGET=rpi0`
 
-We can then create our firmware:
-`mix firmware`
+## Hardware
 
-At this point we plug in our device (with the SD card inserted).  Make sure you connect the pi via a port that can supply both data and power - in the case of the PI Zero, we connect to the left USB port as the right only supplies power.
+There are no changes to the hardware from the [base circuit](../base/README.md#hardware)
 
-Now, let's upload our firmware:
-`mix upload`
+## Wiring
 
-After 30 seconds or so, you should see the LED connected via GPIO 26 start blinking.  We can now connect to the running device to execute commands using our API:
+There are no changes to the wiring from the [base circuit](../base/README.md#wiring)
 
-`mix ssh nerves.local`
+## Application Definition & Dependencies
 
-## Circuit 1A Api
+There are no changs to the Application Definiton & Dependencies from the [base circuit](../base/README.md#application-definition--dependencies)
 
-Our Circuit1A app will serve as the framework we'll use to build our subsequent circuits, so we'll cover the moving parts in a bit more detail.
+## Config
 
-In our (mix.exs)[./mix.exs] we specify a `mod` for our `application` - this tells Elixir which module should start when we start the application.  In our case, we are going to start the module Circuit1a. In turn, Circuit1a will start a [Supervisor](./lib/supervisor.ex) which will then kick off two child processes, [blink](./lib/blink.ex) and [morse](./lib/morse.ex), each of which consists of a [GenServer](https://hexdocs.pm/elixir/1.12/GenServer.html) with a publically available API. 
+The [config](./config/config.exs) for this version of the circuit was updated to include a `blink_default_ms` with a value of 500.
 
-When we ssh into our device with the application running, we get an interactive elixir shell that we can use to interact with the Public API for the blink and morse modules.
+```Elixir
+config :circuit1a,
+  morse_output_gpio: 26
+```
 
-### Blink
 
-On startup, the Blink module kicks off a loop that blinks our LED with a base time unit of 500ms - that is, it turns the light on for 500ms, then off for 500ms.  This was the basic circuit required for Circuit1A.  As part of the challenges, we have also exposed a function (Circuit1a.Blink.change_blink_ms/1)[] that accepts an integer value that represents the new base time unit for the blink cycle.
+## Supervision
 
-### Morse
+There are no changes to the Supervision from the [base circuit](../base/README.md#supervision)
 
-The Morse module tackles another challenge for Circuit1a.  On startup, it initializes our GPIO pin and then waits for the user to send a message via (Circuit1a.Morse.blink_morse/1)[].  When it receives a string via this function, it downcases the string, splits it into characters and then creates a list of values (dots, dashes and pauses) which it then feeds through into an algorithm that blinks the connected LED appropriately.
+
+## Application Logic
+
+The application logic for this circuit is contained in the [Circuit1a.Blink module](./lib/morse.ex).
+
+A few morse code basics:
+  - Morse can use any base time unit as long as it's consistent.
+  - A dot is 1 time unit, a dash is 3.
+  - There is a gap of 3 time units between letters and a gap of 6 time units between words
+
+```elixir
+  @morse_time_unit 250  #Base time unit for morse blinks in ms
+  @morse_map %{
+    "a" => ".-",     "b" => "-...",   "c" => "-.-.",   "d" => "-..",
+    "e" => ".",      "f" => "..-.",   "g" => "--.",    "h" => "....",
+    "i" => "..",     "j" => ".---",   "k" => "-.-",    "l" => ".-..",
+    "m" => "--",     "n" => "-.",     "o" => "---",    "p" => ".--.",
+    "q" => "--.-",   "r" => ".-.",    "s" => "...",    "t" => "-",
+    "u" => "..-",    "v" => "...-",   "w" => ".--",    "x" => "-..-",
+    "y" => "-.--",   "z" => "--..",   "1" => ".----",  "2" => "..---",
+    "3" => "...--",  "4" => "....-",  "5" => ".....",  "6" => "-....",
+    "7" => "--...",  "8" => "---..",  "9" => "----.",  "0" => "-----",
+    "." => ".-.-.-", "," => "--..--", "?" => "..--..", " " => ""
+  }
+  @valid_chars Map.keys(@morse_map)
+  @word_ending_chars [" ", ".", ",", "?"]
+  ```
+
+  A number of module attributes are defined, including the base time unit in miliseconds, a map of characters to morse codes, a list of valid characters and a list of characters that denote the end of words.
+
+  One important note here:  because `@valid_chars` is a module attribute, the Map.keys function is invoked only once on compile.
+
+```elixir
+  # --- Public API ---
+
+  @doc """
+    Accepts a string and sends an async message to our Genserver attempting to display
+    that string in morse code via a blinking LED.  If the value provided was a string,
+    returns {:ok, value}.  If the value was not a valid string it returns
+    {:error, :invalid_string}.
+
+    We do not guard against characters not in the @morse_map and will simply skip over
+    them during our morse conversion.
+  """
+  def blink_morse(input_string) when is_binary(input_string) do
+    GenServer.cast(__MODULE__, {:blink_morse, input_string})
+    {:ok, input_string}
+  end
+
+  def blink_morse(value) do
+    Logger.error("Expected string, received #{inspect(value)}")
+    {:error, :invalid_string}
+  end
+```  
+
+The public api consists of one function, which accept a [valid string](https://hexdocs.pm/elixir/1.12/String.html) as input and returns `{:error, :invalid string}` if it does not receive one.
+
+Upon receiving a valid string, the function uses [GenServer.cast/2](https://hexdocs.pm/elixir/1.13/GenServer.html#cast/2) to send a message to the Circuit1a.Morse genserver with the content {:blink_morse, input_string}.
+
+```elixir
+  # --- Callbacks ---
+  @impl true
+  def init(_) do
+    {:ok, output_gpio} = GPIO.open(morse_output_gpio(), :output)
+    {:ok, %{output_gpio: output_gpio}}
+  end
+
+  @impl true
+  def handle_cast({:blink_morse, input_string}, %{output_gpio: output_gpio} = state) do
+    string_to_morse(input_string, output_gpio)
+    {:noreply, state}
+  end
+```
+
+The callback that receives the `{:blink_morse, input_string}` message uses the string along with the output_gpio to call a private function, `string_to_morse/2`.
+
+```elixir
+ # --- Private Implementation ---
+  defp string_to_morse(input_string, output_gpio) do
+    input_string
+    |> String.downcase()
+    |> String.codepoints()
+    |> Enum.map(fn char -> to_morse(char) end)
+    |> List.flatten()
+    |> Enum.each(fn item -> morse(item, output_gpio) end)
+  end
+```
+
+This is a great example of an Elixir pipeline.  The pipeline operator (`|>`) takes the output of the previous function and passes it to the next function as the first parameter. 
+
+The pipeline above works like this:
+
+- The input string is passed to String.downcase/1, which returns a string with all lower case letters
+- The lowercase string is passed to String.codepoints/1, which returns a list of codepoints (single characters)
+- The list of characters is passed to Enum.map/2, which converts each character to a list of morse code symbols.
+- The list of lists is passed to List.flatten, which collapses all the lists into a single list and returns it
+- The flattened list of morse characters is passed into Enum.each/2, which handles blinking the led for that character
+
+```elixir
+  defp to_morse(char) when char in @valid_chars do
+    morse_chars = Map.get(@morse_map, char)
+    |> String.codepoints()
+
+    # We delay 6x if we're ending a word, 3x if we're just ending a letter
+    delay_ms = case char in @word_ending_chars do
+      true  -> 6 * @morse_time_unit
+      false -> 3 * @morse_time_unit
+    end
+
+    [morse_chars | [delay_ms] ]
+  end
+  defp to_morse(_), do: [] # Just skip invalid characters
+```
+
+This function handles the conversion from string characters to morse characters. It fetches the morse symbols (dots/dashes) from the `@morse_map`, converts them to a list of codepoints and then adds the correct delay.
+
+```elixir
+  defp morse(msec, _) when is_integer(msec), do: Process.sleep(msec)
+  defp morse(".", output_gpio), do: blink(1, output_gpio)
+  defp morse("-", output_gpio),  do: blink(3, output_gpio)
+
+  defp blink(multiplier, output_gpio) do
+    GPIO.write(output_gpio, 1)
+    Process.sleep(multiplier * @morse_time_unit)
+    GPIO.write(output_gpio, 0)
+    Process.sleep(@morse_time_unit)
+  end
+```
+
+`morse/2` and `blink/2` handle actually blinking the led or pausing, depending on whether a dot, dash or integer are received.
