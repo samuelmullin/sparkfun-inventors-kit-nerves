@@ -51,7 +51,7 @@ And finally we will install nerves_bootstrap which will allow us to create nerve
 mix archive.install hex nerves_bootstrap
 ```
 
-Now we can create a new nerves project using mix.  When we run this command, it’s going to create all the nerves boilerplate for us so we can get up and going.   Let’s create the hello world version of a nerves project ala the nerves docs and export a variable to let nerves know that we’re going to be targeting a Raspberry Pi Zero W.
+Now we can create a new nerves project using mix.  When we run this command, it’s going to create all the nerves boilerplate for us so we can get up and going.   Let’s create the hello world version of a nerves project ala the nerves docs and export a variable to let nerves know what [type of device we're going to target](https://hexdocs.pm/nerves/targets.html)
 
 ```bash
 mix nerves.new hello_nerves
