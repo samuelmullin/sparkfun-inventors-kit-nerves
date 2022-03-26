@@ -2,48 +2,105 @@
 
 ## Overview
 
-Circuit 1A is focused on blinking an LED, and will serve as a sort of "hello world" project as we learn about building circuits with the Raspberry Pi and Nerves.
+For this challenge, the GenServer is extended to allow for customization of the blink interval.  This includes exposing a public API that allows the user to update a value in the state of the GenServer.  That value is used instead of the module attribute the original circuit used.  There are no changes to the hardware of the circuit.
 
-For the included code to work, you will need the following:
 
-1 x Breadboard
-2 x LED - Colour doesn't really matter here, but we don't want RGB
-2 x 330ohm Resistor
-3 x Jumper cables
+## Hardware
 
-Keep in mind that the longer leg of an LED is the cathode and is the positive side, which means we'll connect it to our GPIO.  The shorter leg is the annode and is the negative side.  On the far side of the annode, between the LED and the ground, we put our resistors.  The resistors can go on either side of the LED, but I've always put them on the ground side.
+There are no changes to the hardware from the [base circuit](../base/README.md#hardware)
 
-Our connections look like this:
+## Wiring
 
-We setup our LEDs bridging the left and right sides of the breadboard.  The cathode is on the right side and the annode is on the left.  On the right side, we connect our GPIOs using jumpers.  One LED is connected to GPIO 26.  The other is connected to GPIO 19.  On the right side, we use our 330ohm resistor to bridge to the GND rail, and we connect the GND on the pi to the GND rail as well.
+There are no changes to the wiring from the [base circuit](../base/README.md#wiring)
 
-We then set our [target](https://hexdocs.pm/nerves/targets.html#content) - for me, this is:
-`MIX_TARGET=rpi0`
+## Application Definition & Dependencies
 
-We can then create our firmware:
-`mix firmware`
+There are no changs to the Application Definiton & Dependencies from the [base circuit](../base/README.md#application-definition--dependencies)
 
-At this point we plug in our device (with the SD card inserted).  Make sure you connect the pi via a port that can supply both data and power - in the case of the PI Zero, we connect to the left USB port as the right only supplies power.
+## Config
 
-Now, let's upload our firmware:
-`mix upload`
+The [config](./config/config.exs) for this version of the circuit was updated to include a `blink_default_ms` with a value of 500.
 
-After 30 seconds or so, you should see the LED connected via GPIO 26 start blinking.  We can now connect to the running device to execute commands using our API:
+```Elixir
+config :circuit1a,
+  blink_output_gpio: 26,
+  blink_default_ms: 500
+```
 
-`mix ssh nerves.local`
 
-## Circuit 1A Api
+## Supervision
 
-Our Circuit1A app will serve as the framework we'll use to build our subsequent circuits, so we'll cover the moving parts in a bit more detail.
+There are no changes to the Supervision from the [base circuit](../base/README.md#supervision)
 
-In our (mix.exs)[./mix.exs] we specify a `mod` for our `application` - this tells Elixir which module should start when we start the application.  In our case, we are going to start the module Circuit1a. In turn, Circuit1a will start a [Supervisor](./lib/supervisor.ex) which will then kick off two child processes, [blink](./lib/blink.ex) and [morse](./lib/morse.ex), each of which consists of a [GenServer](https://hexdocs.pm/elixir/1.12/GenServer.html) with a publically available API. 
 
-When we ssh into our device with the application running, we get an interactive elixir shell that we can use to interact with the Public API for the blink and morse modules.
+## Application Logic
 
-### Blink
+The application logic for this circuit is contained in the [Circuit1a.Blink module](./lib/blink.ex).
 
-On startup, the Blink module kicks off a loop that blinks our LED with a base time unit of 500ms - that is, it turns the light on for 500ms, then off for 500ms.  This was the basic circuit required for Circuit1A.  As part of the challenges, we have also exposed a function (Circuit1a.Blink.change_blink_ms/1)[] that accepts an integer value that represents the new base time unit for the blink cycle.
+```elixir
 
-### Morse
+  def change_blink_ms(new_ms) when is_integer(new_ms) do
+    GenServer.cast(__MODULE__, {:change_blink_ms, new_ms})
+    {:ok, new_ms}
+  end
 
-The Morse module tackles another challenge for Circuit1a.  On startup, it initializes our GPIO pin and then waits for the user to send a message via (Circuit1a.Morse.blink_morse/1)[].  When it receives a string via this function, it downcases the string, splits it into characters and then creates a list of values (dots, dashes and pauses) which it then feeds through into an algorithm that blinks the connected LED appropriately.
+  def change_blink_ms(value) do
+    Logger.error("Expected integer, received #{inspect value}")
+    {:error, :invalid_integer}
+  end
+```
+
+In order to support the requirement to change the cadence of the LED blinks, a public API has been added.  `change_blink_ms/1` accepts an integer, and then updates the `blink_ms` value in the GenServer state with that new value via [GenServer.cast/2](https://hexdocs.pm/elixir/1.13/GenServer.html#cast/2).  It returns {:ok, new_ms}.
+
+If a non-integer value is provided, it returns {:error, invalid integer} instead.
+
+
+```elixir
+  @impl true
+  def handle_cast({:change_blink_ms, new_ms}, state) do
+    {:noreply, Map.merge(state, %{blink_ms: new_ms})}
+  end
+```
+
+This is the callback to update the blink_ms value.  It waits for a cast with a tuple `{:change_blink_ms, some_int_value}`, then returns a tuple with `:noreply` and the updated state.
+
+```elixir
+defp blink_default_ms, do: Application.get_env(:circuit1a, :blink_default_ms)
+```
+
+The only change to the private implementation is an extra function to pull the `:default_blink_ms` value out of the `:circuit1a` config.
+
+## Building/Uploading Firmware
+
+First, check the target
+
+`echo $MIX_TARGET`
+
+If it's not the expected value, or it's blank, [set the target](https://hexdocs.pm/nerves/targets.html)
+
+`export MIX_TARGET=rpi0`
+
+Then run `mix firmware` from the root directory of the circuit to build the firmware.
+
+Finally, setup the hardware, plug in the device and after it has booted (~30 seconds depending on the model), run `mix upload` to load the firmware onto the device.
+
+The device will reboot and the code from the firmware will be executed.
+
+
+## Troubleshooting
+
+When troubleshooting, the first thing to do is always to check the wiring of your circuit.
+
+- Are the connections correct?  Check that the correct GPIOs have been connected to the breadboard.  Remember that the breadboard has connections across horizontal rows on each side of the board and that could be shorting components that have multiple leads in the same row
+- Is the polarity of the devices correct?  Check that devices that are sensitive to polarity (such as LEDs) are installed in the correct orientation.
+- If there is a resistor in the circuit, is it the correct resistance?  You can verify using the [coloured rings on the side](https://www.calculator.net/resistor-calculator.html)
+  
+Once hardware is ruled out, the first thing to do to verify software is to check the logs.  Logs are obtained by SSHing into the device and using the [Ringlogger library](https://github.com/nerves-project/ring_logger) which is included in the nerves boilerplate.
+
+```bash
+ssh nerves.local
+RingLogger.attach
+RingLogger.next
+```
+
+The logs should give a hint as to why the circuit is not working.  If there is no obvious error, like the GenServer crashing, try replacing the components in the circuit (jumper cables, led, resistor) one at a time.
