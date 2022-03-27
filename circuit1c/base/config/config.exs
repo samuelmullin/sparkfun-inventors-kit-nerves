@@ -27,9 +27,10 @@ config :nerves, source_date_epoch: "1646185297"
 config :logger, backends: [RingLogger]
 
 config :circuit1c,
-  led_pin: 26,
-  default_threshold: 9000,
-  adc1115_address: 72
+  led_gpio: 26,
+  default_threshold: 12000,
+  adc1115_address: 72,
+  adc_gain: 6144
 
 if Mix.target() == :host or Mix.target() == :"" do
   import_config "host.exs"

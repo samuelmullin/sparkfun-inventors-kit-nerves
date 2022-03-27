@@ -9,21 +9,30 @@ defmodule Circuit1c.Photoresistor do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
   end
 
-  # Public API
-
+  # --- Public API ---
+  @doc"""
+    Get the current reading from the photoresistor
+  """
   def get_reading() do
     GenServer.call(__MODULE__, :get_reading)
   end
 
+  @doc"""
+    Get the current minimum threshold for turning on the LED
+  """
   def get_threshold() do
     GenServer.call(__MODULE__, :get_threshold)
   end
 
-  def set_threshold(threshold) do
+  @doc"""
+    Set a new minimum threshold for turning on the LED
+  """
+  def set_threshold(threshold) when is_integer(threshold) do
     GenServer.call(__MODULE__, {:set_threshold, threshold})
   end
+  def set_threshold(threshold), do: {:error, :invalid_integer}
 
-  # Callbacks
+  # --- Callbacks ---
 
   @impl true
   def init(_) do
@@ -43,7 +52,7 @@ defmodule Circuit1c.Photoresistor do
   @impl true
   def handle_call(:get_reading, _from, %{ads_ref: ads_ref} = state) do
     # Get a reading from our potentiometer
-    {:ok, reading} = ADS1115.read(ads_ref, adc1115_address(), {:ain0, :gnd}, 6144)
+    {:ok, reading} = ADS1115.read(ads_ref, adc1115_address(), {:ain0, :gnd}, adc_gain())
     {:reply, reading, state}
   end
 
@@ -71,6 +80,7 @@ defmodule Circuit1c.Photoresistor do
 
   defp adc1115_address(), do: Application.get_env(:circuit1c, :adc1115_address)
   defp default_threshold(), do: Application.get_env(:circuit1c, :default_threshold)
-  defp led_pin(), do: Application.get_env(:circuit1c, :led_pin)
+  defp adc_gain, do: Application.get_env(:circuit1c, :adc_gain)
+  defp led_gpio(), do: Application.get_env(:circuit1c, :led_gpio)
 
 end
