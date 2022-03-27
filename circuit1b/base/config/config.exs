@@ -27,7 +27,7 @@ config :nerves, source_date_epoch: "1646185297"
 config :logger, backends: [RingLogger]
 
 config :circuit1b,
-  led_pin: 26,
+  led_gpio: 26,
   max_reading: 27235,
   adc1115_address: 72
 

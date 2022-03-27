@@ -9,27 +9,27 @@ defmodule Circuit1b.Potentiometer do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
   end
 
-  # Public API
+  # --- Public API ---
 
   def get_reading() do
     GenServer.call(__MODULE__, :get_reading)
   end
 
-  # Callbacks
+  # --- Callbacks ---
 
   @impl true
   def init(_) do
     # Open LED GPIO for output
-    {:ok, led_gpio} = GPIO.open(led_pin(), :output)
+    {:ok, output_gpio} = GPIO.open(led_gpio(), :output)
 
     # Open I2C-1 for input
     {:ok, ads_ref} = I2C.open("i2c-1")
 
     # Kick off recursive task to blink our LED
-    Task.async(fn -> blink_led(led_gpio) end)
+    Task.async(fn -> blink_led(output_gpio) end)
 
     # Store our references in state so they don't get garbage collected
-    {:ok, %{ads_ref: ads_ref, output_gpio: led_gpio}}
+    {:ok, %{ads_ref: ads_ref, output_gpio: output_gpio}}
   end
 
   @impl true
@@ -39,7 +39,7 @@ defmodule Circuit1b.Potentiometer do
     {:reply, reading, state}
   end
 
-  # Private Implementation
+  # --- Private Implementation ---
 
   defp blink_led(led_gpio) do
     # Get the reading and convert to a whole number between 0 and 1000
@@ -60,6 +60,6 @@ defmodule Circuit1b.Potentiometer do
 
   defp adc1115_address, do: Application.get_env(:circuit1b, :adc1115_address)
   defp max_reading, do: Application.get_env(:circuit1b, :max_reading)
-  defp led_pin, do: Application.get_env(:circuit1b, :led_pin)
+  defp led_gpio, do: Application.get_env(:circuit1b, :led_gpio)
 
 end
