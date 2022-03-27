@@ -32,7 +32,7 @@ Connect any ground on the raspberry pi to the ground rail on the right hand side
 
 Connect the 5v rail of the raspberry pi to the power(+) rail on the right hand side. 
 
-Plug the potentioometer into the breadboard on the left hand side.  Make sure to plug it in vertically - across a number of rows - not horizontally. 
+Plug the potentiometer into the breadboard on the left hand side.  Make sure to plug it in vertically - across a number of rows - not horizontally. 
 
 Plug the ADS1115 module into the breadboard on the right hand side.  Make sure to plug it in vertically - across a number of rows - not horizontally.  Connect the vdd pin to the power rail on the right hand side.  Connect the gnd pin to the ground rail on the right hand side.  Connect the SCL pin to GPIO 3 on your raspberry pi.  Connect the SDA pin to GPIO 2 on your raspberry pi.  Connect the a0 pin to the middle pin of the potentiometer.
 

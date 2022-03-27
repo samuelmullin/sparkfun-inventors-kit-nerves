@@ -44,15 +44,15 @@ defmodule Circuit1b.Potentiometer do
   defp blink_led(led_gpio) do
     # Get the reading and convert to a whole number between 0 and 1000
     reading = get_reading()
-    speed = round((reading / max_reading()) * 1000)
+    blink_ms = round((reading / max_reading()) * 1000) + 50
 
     # Turn the led on and sleep
     GPIO.write(led_gpio, 1)
-    Process.sleep(speed)
+    Process.sleep(blink_ms)
 
     # Turn the LED off and sleep
     GPIO.write(led_gpio, 0)
-    Process.sleep(speed)
+    Process.sleep(blink_ms)
 
     # Start over
     blink_led(led_gpio)
