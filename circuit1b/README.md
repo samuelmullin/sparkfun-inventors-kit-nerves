@@ -8,17 +8,16 @@ In [Circuit 1B](./base), you'll use a potentiometer to control the cadence of a 
 
 If you're interested in seeing example solutions to the challenges for this circuit, you can find them here:
 
-[Blink](./blink) extends our base circuit by adding a public API that we can use to change the cadence of the blink
-[Morse](./morse) exposes a public API that allows us to blink morse code messages via our LED
+[Multiple LEDs](./multiple_led) extends our base circuit by adding the ability to add additional LEDs by simply adding to the project config.  Also exposes a config option to change the max cadence (which will make the available range larger or smaller)
 
 ## Hardware
 
 In order to complete these circuits, you'll need the following:
 
 - 1 x Breadboard
-- 1 x LED - Colour doesn't really matter here, but we don't want RGB
-- 1 x 330ohm Resistor
-- 5 x M-F Jumper cables
+- 3 x LED - Colour doesn't really matter here, but we don't want RGB
+- 3 x 330ohm Resistor
+- 7 x M-F Jumper cables
 - 5 x M-M Jumper cables
 - 1 x Analog Potentiometer
 - 1 x ADC1115 Analog-to-Digital Converter
