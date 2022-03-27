@@ -35,7 +35,7 @@ defmodule Circuit1b.Potentiometer do
   @impl true
   def handle_call(:get_reading, _from, %{ads_ref: ads_ref} = state) do
     # Get a reading from our potentiometer
-    {:ok, reading} = ADS1115.read(ads_ref, adc1115_address(), {:ain0, :gnd}, 6144)
+    {:ok, reading} = ADS1115.read(ads_ref, adc1115_address(), {:ain0, :gnd}, adc_gain())
     {:reply, reading, state}
   end
 
@@ -60,6 +60,7 @@ defmodule Circuit1b.Potentiometer do
 
   defp adc1115_address, do: Application.get_env(:circuit1b, :adc1115_address)
   defp max_reading, do: Application.get_env(:circuit1b, :max_reading)
+  defp adc_gain, do: Application.get_env(:circuit1b, :adc_gain)
   defp led_gpio, do: Application.get_env(:circuit1b, :led_gpio)
 
 end

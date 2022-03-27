@@ -54,7 +54,11 @@ The [config](./config/config.exs) for Circuit1b defines the following:
 `led_gpio: 26` - The GPIO pin used to control the LED
 `max_reading: 27235` - The max value we expect to receive from our potentiometer.  This may vary and it can be adjusted up or down if things are not behaving as expected
 `adc1115_address: 72` - The default for the ADS1115, but since it can be changed it is not hard coded.
+`adc_gain: 6144` - The amount of gain to apply to the value read - this impacts the full scale range.  Accepted values are: 6144, 4096, 2048, 1024, 512, 256.  6144 works best for ads1115 when a 5v reference is used.
 
+A quick note - to play around with these values while the project is running, these configuration values can be modified by using `Application.put_env/3`
+
+`Application.put_env(:circuit1b, :max_reading, 40000)` would set the max_reading config value to 40000 until a reboot.
 
 ## Supervision
 
@@ -147,6 +151,7 @@ After kicking off the blink_led loop, the references are stored in state.
   defp adc1115_address, do: Application.get_env(:circuit1b, :adc1115_address)
   defp max_reading, do: Application.get_env(:circuit1b, :max_reading)
   defp led_gpio, do: Application.get_env(:circuit1b, :led_gpio)
+  defp adc_gain, do: Application.get_env(:circuit1b, :adc_gain)
 ```
 
 Finally we have some convenience functions to extract our config.
