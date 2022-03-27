@@ -41,7 +41,7 @@ def application do
 end
 ```
 
-The `application/0` method tells Elixir what modules/appliations should start when this application is started.  The mod attribute in this case contains a tuple that says `Start the Circuit1a module with an empty list of arguments`.  Extra applications says `when this application is started, also start the :logger and :runtime_tools applications`
+The `application/0` method tells Elixir what modules/applications should start when this application is started.  The mod attribute in this case contains a tuple that says `Start the Circuit1a module with an empty list of arguments`.  Extra applications says `when this application is started, also start the :logger and :runtime_tools applications`
 
 ```elixir
 defp deps do
