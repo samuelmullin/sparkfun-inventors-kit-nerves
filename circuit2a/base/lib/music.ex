@@ -79,12 +79,12 @@ defmodule Circuit2a.Music do
     set_playing(false)
   end
 
-  defp play_note(" "), do: Process.sleep(@interval * 3)
+  defp play_note(" "), do: Process.sleep(@interval_ms * 3)
   defp play_note(note) do
     Pigpiox.Pwm.hardware_pwm(buzzer_gpio(), Map.get(@notes, note, 0), 500_000) # On
-    Process.sleep(@interval * 3)
+    Process.sleep(@interval_ms * 3)
     Pigpiox.Pwm.hardware_pwm(buzzer_gpio(), Map.get(@notes, note, 0), 0) # Off
-    Process.sleep(@interval)
+    Process.sleep(@interval_ms)
   end
 
   defp buzzer_gpio(), do: Application.get_env(:circuit2a, :buzzer_gpio)
