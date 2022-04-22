@@ -36,6 +36,7 @@ defmodule Circuit2a.MixProject do
       {:ring_logger, "~> 0.8.3"},
       {:toolshed, "~> 0.2.13"},
       {:pigpiox, "~> 0.1"},
+      {:circuits_gpio, "~> 0.4"},
 
       # Dependencies for all targets except :host
       {:nerves_runtime, "~> 0.11.6", targets: @all_targets},

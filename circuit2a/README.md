@@ -1,32 +1,25 @@
-# Circuit2a
+# Circuit 2A- Buzzer
 
-**TODO: Add description**
+## Overview
 
-## Targets
+In [Circuit 2a](./base), you'll play songs via a Piezo buzzer and control it's volume using a potentiometer.  If you need to hear the song over and over again, the included button will allow it.
 
-Nerves applications produce images for hardware targets based on the
-`MIX_TARGET` environment variable. If `MIX_TARGET` is unset, `mix` builds an
-image that runs on the host (e.g., your laptop). This is useful for executing
-logic tests, running utilities, and debugging. Other targets are represented by
-a short name like `rpi3` that maps to a Nerves system image for that platform.
-All of this logic is in the generated `mix.exs` and may be customized. For more
-information about targets see:
+## Challenges
 
-https://hexdocs.pm/nerves/targets.html#content
+There are no challenge implementations for this circuit as they don't diverge from the base logic enough to warrant including.
 
-## Getting Started
+## Hardware
 
-To start your Nerves app:
-  * `export MIX_TARGET=my_target` or prefix every command with
-    `MIX_TARGET=my_target`. For example, `MIX_TARGET=rpi3`
-  * Install dependencies with `mix deps.get`
-  * Create firmware with `mix firmware`
-  * Burn to an SD card with `mix burn`
+In order to complete these circuits, you'll need the following:
 
-## Learn more
+- 1 x Breadboard
+- 1 x Piezo Buzzer
+- 1 x Analog Potentiometer
+- 3 x M-F Jumper Cables
+- 2 x M-M Jumper Cables
 
-  * Official docs: https://hexdocs.pm/nerves/getting-started.html
-  * Official website: https://nerves-project.org/
-  * Forum: https://elixirforum.com/c/nerves-forum
-  * Discussion Slack elixir-lang #nerves ([Invite](https://elixir-slackin.herokuapp.com/))
-  * Source: https://github.com/nerves-project/nerves
+## New Concepts
+
+### Piezo Buzzer
+
+[Piezo Buzzer](Wow a link) converts electical pulses to sound (and vice versa, though we don't get into that).  By sending pulses of electricty at different frequencies, it can play notes.

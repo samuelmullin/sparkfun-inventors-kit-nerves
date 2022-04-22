@@ -42,12 +42,13 @@ Connect a jumper from the power rail to the row with the first leg of the photor
 
 ## Application Definition & Dependencies
 
-Our [application](./mix.exs) simply starts the Circuit1c module.
+Our [application](./mix.exs) simply starts the Circuit1D module.
 
-We have two non-standard dependencies for this project:
+We have three non-standard dependencies for this project:
 
 [ads1115](https://hexdocs.pm/ads1115/readme.html) which allows for control of our ADS1115 analog to digital converter
 [circuits_gpio](https://hexdocs.pm/circuits_gpio/Circuits.GPIO.html) which allows for reading and writing to the GPIO pins on the raspberry pi
+[:pigpiox](LINK GOES HERE) which allows us to use PWM with our GPIOs
 
 ## Config
 
@@ -76,11 +77,11 @@ led_gpios: %{
 
 ## Supervision
 
-The [supervisor](./lib/supervisor.ex) starts a single child process (Circuit1c.Photoresistor), and it specifies a `:one_for_one` strategy, which means if the child process dies, the supervisor will start a new one. 
+The [supervisor](./lib/supervisor.ex) starts a single child process (Circuit1d.RGB), and it specifies a `:one_for_one` strategy, which means if the child process dies, the supervisor will start a new one. 
 
 ## Application Logic
 
-The application logic for this circuit is contained in the [Circuit1c.Photoresistor module](./lib/photoresistor.ex).
+The application logic for this circuit is contained in the [Circuit1d.RGB module](./lib/rgb.ex).
 
 ```elixir
  # --- Public API ---
@@ -115,7 +116,7 @@ The application logic for this circuit is contained in the [Circuit1c.Photoresis
   def set_threshold(_value), do: {:error, :invalid_integer}
 ```
 
-Three functions are exposed via the public API, allowing the user to get the current readings, get the current threshold or set a new minimum threshold.  Like [Circuit1C](../../circuit1c/), `set_threshold/1` is particularly useful here as the minimum threshold required to turn on the light will vary greatly depending on the ambient lighting of the room.
+Three functions are exposed via the public API, allowing the user to get the current readings, get the current threshold or set a new minimum threshold.  Like [Circuit1D](../../circuit1d/), `set_threshold/1` is particularly useful here as the minimum threshold required to turn on the light will vary greatly depending on the ambient lighting of the room.
 
 
 ```elixir

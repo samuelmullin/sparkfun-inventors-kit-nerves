@@ -84,30 +84,56 @@ defmodule Circuit1d.RGB do
     {:ok, photoresistor_reading} = get_reading(ads_ref, :photoresistor)
 
     over_threshold = photoresistor_reading <= threshold
-    led_brightness = round((potentiometer_reading / potentiometer_max()) * 1_000_000) + 50
+    rgb_base = round((potentiometer_reading / potentiometer_max()) * 600)
+    rgb_values = get_rgb_values(rgb_base)
 
-    light_led(over_threshold, led_brightness)
+    light_led(over_threshold, rgb_values)
     light_loop(ads_ref)
   end
 
-  defp light_led(true, led_brightness) do
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:green), 1000, led_brightness)
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:red), 0, 0)
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:blue), 0, 0)
+  defp get_rgb_values(rgb_base) when rgb_base <= 100 do
+    # Fade in red to max
+    {round(rgb_base * 2.5), 0, 0}
   end
-  defp light_led(false, led_brightness) do
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:green), 0, 0)
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:red), 1000, led_brightness)
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:blue), 0, 0)
+  defp get_rgb_values(rgb_base) when rgb_base <= 200 do
+    # Fade in green to max
+    {250, round((rgb_base - 100) * 2.5), 0}
+  end
+  defp get_rgb_values(rgb_base) when rgb_base <= 300 do
+    # Fade out red
+    {round(250 - (rgb_base - 200) * 2.5), 250, 0}
+  end
+  defp get_rgb_values(rgb_base) when rgb_base <= 400 do
+    # Fade in blue to max
+    {0, 250, round((rgb_base - 300) * 2.5)}
+  end
+  defp get_rgb_values(rgb_base) when rgb_base <= 500 do
+    # Fade out green
+    {0, round(250 - (rgb_base - 400) * 2.5), 250}
+  end
+  defp get_rgb_values(rgb_base) when rgb_base <= 600 do
+    #Fade out blue
+    {0, 0, round(250 - (rgb_base - 500) * 2.5)}
+  end
+
+  defp light_led(true, {red, green, blue}) do
+    Pigpiox.Pwm.gpio_pwm(led_gpio(:red), red)
+    Pigpiox.Pwm.gpio_pwm(led_gpio(:green), green)
+    Pigpiox.Pwm.gpio_pwm(led_gpio(:blue), blue)
+  end
+  defp light_led(false, _rgb) do
+    Pigpiox.Pwm.gpio_pwm(led_gpio(:red), 0)
+    Pigpiox.Pwm.gpio_pwm(led_gpio(:green), 0)
+    Pigpiox.Pwm.gpio_pwm(led_gpio(:blue), 0)
   end
 
   defp get_reading(ads_ref, sensor) do
     analog_pin = sensor_analog_input(sensor)
-    ADS1115.read(ads_ref, adc1115_address(), {analog_pin, :gnd}, adc_gain())
+    ADS1115.read(ads_ref, ads1115_address(), {analog_pin, :gnd}, adc_gain())
   end
 
   def sensor_analog_input(sensor), do: Application.get_env(:circuit1d, :analog_inputs) |> Map.get(sensor)
-  defp adc1115_address(), do: Application.get_env(:circuit1d, :adc1115_address)
+  defp ads1115_address(), do: Application.get_env(:circuit1d, :ads1115_address)
   defp default_threshold(), do: Application.get_env(:circuit1d, :default_threshold)
   defp potentiometer_max(), do: Application.get_env(:circuit1d, :potentiometer_max_reading)
   defp adc_gain, do: Application.get_env(:circuit1d, :adc_gain)

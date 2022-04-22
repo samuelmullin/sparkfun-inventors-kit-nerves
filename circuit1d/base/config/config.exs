@@ -28,7 +28,7 @@ config :logger, backends: [RingLogger]
 
 config :circuit1d,
   led_gpio: 26,
-  default_threshold: 12000,
+  default_threshold: 22000,
   potentiometer_max_reading: 27375,
   adc1115_address: 72,
   adc_gain: 6144,
@@ -37,8 +37,8 @@ config :circuit1d,
     photoresistor: :ain1
   },
   led_gpios: %{
-    red: 13,
-    green: 18,
+    red: 18,
+    green: 13,
     blue: 12
   }
 

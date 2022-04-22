@@ -1,6 +1,7 @@
 %{
   "beam_notify": {:hex, :beam_notify, "1.0.0", "5b8dceed76f8ac4acadf4d2915ac85b98c42bb17d7dd58253c7593d2a0deedbd", [:make, :mix], [{:elixir_make, "~> 0.6", [hex: :elixir_make, repo: "hexpm", optional: false]}], "hexpm", "a80331f6c3596918affa408d91ed634106b7ae71b3fc589432363aca68378362"},
   "castore": {:hex, :castore, "0.1.15", "dbb300827d5a3ec48f396ca0b77ad47058578927e9ebe792abd99fcbc3324326", [:mix], [], "hexpm", "c69379b907673c7e6eb229f09a0a09b60bb27cfb9625bcb82ea4c04ba82a8442"},
+  "circuits_gpio": {:hex, :circuits_gpio, "0.4.8", "75a62b07131f119c0ffa1dd49f79fbe29c46fd39b20ef0acc036d449fb780b89", [:make, :mix], [{:elixir_make, "~> 0.6", [hex: :elixir_make, repo: "hexpm", optional: false]}], "hexpm", "05e341a5de7e9181a0ee6b3281bd2dc278ae4651825e95c9e83c9eabc421448e"},
   "circular_buffer": {:hex, :circular_buffer, "0.4.0", "a51ea76bb03c4a38207934264bcc600018ead966728ca80da731458c5f940f8b", [:mix], [], "hexpm", "c604b19f2101982b63264e2ed90c6fb0fe502540b6af83ce95135ac9b6f2d847"},
   "elixir_make": {:hex, :elixir_make, "0.6.3", "bc07d53221216838d79e03a8019d0839786703129599e9619f4ab74c8c096eac", [:mix], [], "hexpm", "f5cbd651c5678bcaabdbb7857658ee106b12509cd976c2c2fca99688e1daf716"},
   "gen_state_machine": {:hex, :gen_state_machine, "3.0.0", "1e57f86a494e5c6b14137ebef26a7eb342b3b0070c7135f2d6768ed3f6b6cdff", [:mix], [], "hexpm", "0a59652574bebceb7309f6b749d2a41b45fdeda8dbb4da0791e355dd19f0ed15"},
