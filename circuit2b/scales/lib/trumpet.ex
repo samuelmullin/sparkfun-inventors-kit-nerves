@@ -58,13 +58,6 @@ defmodule Circuit2b.Trumpet do
     active_colours
   end
 
-  defp setup_gpio(gpio) do
-    Logger.info("Setting up gpio: #{gpio}")
-    {:ok, gpio_addr} = GPIO.open(gpio, :input, pull_mode: :pullup)
-    Circuits.GPIO.set_interrupts(gpio_addr, :both)
-    gpio_addr
-  end
-
   defp tone([:blue]),                do: 262
   defp tone([:red]),                 do: 294
   defp tone([:yellow]),              do: 330
@@ -73,6 +66,12 @@ defmodule Circuit2b.Trumpet do
   defp tone([:red, :yellow]),        do: 440
   defp tone([:blue, :red, :yellow]), do: 494
 
+  defp setup_gpio(gpio) do
+    Logger.info("Setting up gpio: #{gpio}")
+    {:ok, gpio_addr} = GPIO.open(gpio, :input, pull_mode: :pullup)
+    Circuits.GPIO.set_interrupts(gpio_addr, :both)
+    gpio_addr
+  end
 
   defp colour(gpio), do: buttons()[gpio]
   defp buttons(), do: Application.get_env(:circuit2b, :buttons)
