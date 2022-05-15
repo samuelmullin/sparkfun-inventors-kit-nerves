@@ -108,8 +108,3 @@ defp tone([:blue, :red, :yellow]), do: 494
 ```
 
 Each of these corresponds to a set of pressed buttons and returns the tone that will be played for that combination.
-
-
-
-
-
