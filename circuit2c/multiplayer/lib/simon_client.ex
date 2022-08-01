@@ -5,16 +5,15 @@ defmodule Circuit2c.SimonClient do
   alias Circuits.GPIO
   alias Circuit2c.SimonServer
 
-  @default_volume 100_000 # 10%
+  @default_volume 500_000 # 10%
   @interval_ms 250
   @buzzer_pin Application.get_env(:circuit2c, :buzzer_pin)
 
-  @colours [:red, :blue, :yellow, :green]
+  @colours [:yellow, :blue, :red, :green]
 
   # Setup pin to name map (at compile time)
   @gpio_names @colours
   |> Enum.reduce(%{}, fn colour, acc -> Map.put(acc, Application.get_env(:circuit2c, String.to_atom("#{colour}_input_pin")), colour) end)
-  |> Map.put(Application.get_env(:circuit2c, :reset_input_pin), :reset)
   |> Map.put(Application.get_env(:circuit2c, :mode_input_pin), :mode)
 
   def start_link(_) do
@@ -38,11 +37,6 @@ defmodule Circuit2c.SimonClient do
 
       Map.put(acc, colour, config)
     end)
-
-    # Initialize GPIO for reset button and add it to our gpios map
-    {:ok, reset_gpio} = GPIO.open(input_pin(:reset), :input, pull_mode: :pullup)
-    Circuits.GPIO.set_interrupts(reset_gpio, :both)
-    gpios = Map.put(gpios, :reset, %{input_gpio: reset_gpio})
 
     # Initialize GPIO for the game mode button and add it to our gpios map
     {:ok, mode_gpio} = GPIO.open(input_pin(:mode), :input, pull_mode: :pulldown)
@@ -113,10 +107,6 @@ defmodule Circuit2c.SimonClient do
     game_loop(gpios)
   end
 
-  defp handle_gpio_state(:reset, 1, _, _gpios), do: :ok
-  defp handle_gpio_state(:reset, _, _, _gpios) do
-    end_game()
-  end
   defp handle_gpio_state(colour, 0, :accept_input, gpios) when colour in @colours, do: select_colour(colour, gpios)
   defp handle_gpio_state(colour, 1, :accept_input, gpios) when colour in @colours do
     deselect_colour(colour, gpios)
