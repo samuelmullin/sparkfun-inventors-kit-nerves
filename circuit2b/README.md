@@ -1,8 +1,8 @@
-# Circuit 2A- Buzzer
+# Circuit 2B - Digital Trumpet
 
 ## Overview
 
-In [Circuit 2b](./base), you'll build a digital trumpet that you can use to serenade someone you love.
+In [Circuit 2B](./base), you'll build a digital trumpet that you can use to serenade someone you love.
 
 ## Challenges
 

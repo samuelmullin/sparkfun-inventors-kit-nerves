@@ -1,4 +1,4 @@
-# Circuit 2A
+# Circuit 2B
 
 ## Overview
 
