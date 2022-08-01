@@ -92,30 +92,6 @@ config :mdns_lite,
     }
   ]
 
-config :circuit2c,
-  # Tones
-  red_tone: 262,
-  blue_tone: 294,
-  yellow_tone: 330,
-  green_tone: 349,
-
-  # LED GPIO Pins
-  red_led_pin: 17,
-  blue_led_pin: 27,
-  yellow_led_pin: 22,
-  green_led_pin: 23,
-
-  # Input GPIO Pins
-  red_input_pin: 26,
-  blue_input_pin: 21,
-  yellow_input_pin: 20,
-  green_input_pin: 6,
-  reset_input_pin: 25,
-  mode_input_pin: 24,
-
-  # Other
-  buzzer_pin: 13
-
 
 # Import target specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

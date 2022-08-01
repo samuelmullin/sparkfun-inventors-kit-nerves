@@ -26,6 +26,28 @@ config :nerves, source_date_epoch: "1646483815"
 
 config :logger, backends: [RingLogger]
 
+config :circuit2c,
+  # Tones
+  red_tone: 262,
+  blue_tone: 294,
+  yellow_tone: 330,
+  green_tone: 349,
+
+  # LED GPIO Pins
+  red_led_pin: 4,
+  blue_led_pin: 22,
+  yellow_led_pin: 17,
+  green_led_pin: 27,
+
+  # Input GPIO Pins
+  red_input_pin: 19,
+  blue_input_pin: 20,
+  yellow_input_pin: 6,
+  green_input_pin: 26,
+
+  # Other
+  buzzer_pin: 13
+
 
 if Mix.target() == :host or Mix.target() == :"" do
   import_config "host.exs"

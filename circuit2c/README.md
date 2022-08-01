@@ -1,32 +1,25 @@
-# Circuit2c
+# Circuit 2C- Simon Game
 
-**TODO: Add description**
+## Overview
 
-## Targets
+In [Circuit 2C](./base), you'll build a single player Simon game.
 
-Nerves applications produce images for hardware targets based on the
-`MIX_TARGET` environment variable. If `MIX_TARGET` is unset, `mix` builds an
-image that runs on the host (e.g., your laptop). This is useful for executing
-logic tests, running utilities, and debugging. Other targets are represented by
-a short name like `rpi3` that maps to a Nerves system image for that platform.
-All of this logic is in the generated `mix.exs` and may be customized. For more
-information about targets see:
+## Challenges
 
-https://hexdocs.pm/nerves/targets.html#content
+[Multiplayer](./multiplayer) allows for a multiplayer variant as well
 
-## Getting Started
+## Hardware
 
-To start your Nerves app:
-  * `export MIX_TARGET=my_target` or prefix every command with
-    `MIX_TARGET=my_target`. For example, `MIX_TARGET=rpi3`
-  * Install dependencies with `mix deps.get`
-  * Create firmware with `mix firmware`
-  * Burn to an SD card with `mix burn`
+In order to complete these circuits, you'll need the following:
 
-## Learn more
+- 1 x Breadboard
+- 1 x Piezo Buzzer
+- 4 x Coloured buttons (yellow, blue, red, green)
+- 4 x Coloured LEDs (yellow, blue, red green)
+- 4 x 330ohm Resistors
+- 10 x M-F Jumper Cables
+- 5 x M-M Jumper Cables
 
-  * Official docs: https://hexdocs.pm/nerves/getting-started.html
-  * Official website: https://nerves-project.org/
-  * Forum: https://elixirforum.com/c/nerves-forum
-  * Discussion Slack elixir-lang #nerves ([Invite](https://elixir-slackin.herokuapp.com/))
-  * Source: https://github.com/nerves-project/nerves
+## New Concepts
+
+There are no new concepts this time around
