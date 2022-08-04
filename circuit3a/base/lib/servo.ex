@@ -63,6 +63,4 @@ defmodule Circuit3a.Servo do
     end
   end
 
-  def sensor_analog_input(sensor), do:  |> Map.get(sensor)
-
 end
