@@ -41,20 +41,19 @@ defmodule Circuit4c.WhoAmI do
     lcd_config = Application.fetch_env!(:circuit4c, :lcd_config)
     {:ok, lcd_ref} = LCD.start(lcd_config)
 
-    # Get our button reference
+    # Get our button reference and set our interrupt
     {:ok, button_ref} = GPIO.open(Application.fetch_env!(:circuit4c, :button_pin), :input, pull_mode: :pullup)
-
     GPIO.set_interrupts(button_ref, :falling)
 
     # Get our buzzer pin
     buzzer_pin = Application.fetch_env!(:circuit4c, :buzzer_pin)
 
-    # Clear the screen
+    # Clear the screen and print the start message
     LCD.execute(lcd_ref, :clear)
-
-    # Print the first line
     LCD.execute(lcd_ref, {:print, "Press to start!"})
 
+
+    # Store our references and initialize our GameState
     state = struct(GameState, [
       lcd_ref: lcd_ref,
       button_ref: button_ref,
@@ -65,6 +64,7 @@ defmodule Circuit4c.WhoAmI do
 
     {:ok, state}
   end
+
   @impl true
   def handle_info({:circuits_gpio, _, _, _}, %GameState{status: :started} = state) do
     state = next_round(state)
