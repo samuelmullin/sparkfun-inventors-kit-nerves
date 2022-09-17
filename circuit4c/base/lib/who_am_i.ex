@@ -66,30 +66,35 @@ defmodule Circuit4c.WhoAmI do
   end
 
   @impl true
-  def handle_info({:circuits_gpio, _, _, _}, %GameState{status: :started} = state) do
-    state = next_round(state)
-    {:noreply, state}
-  end
-
-  @impl true
   def handle_info({:circuits_gpio, _, _, _}, %GameState{status: :waiting} = state) do
+    # If the game is waiting to start and the button is pushed, start the game.
     state = start_game(state)
     {:noreply, state}
   end
 
   @impl true
+  def handle_info({:circuits_gpio, _, _, _}, %GameState{status: :started} = state) do
+    # If the game is started and the button is pushed, begin the next round.
+    state = next_round(state)
+    {:noreply, state}
+  end
+
+  @impl true
   def handle_info({:circuits_gpio, _, _, _}, %GameState{} = state) do
+    # If the button is pushed and the game is not started or waiting to start, ignore it.
     {:noreply, state}
   end
 
   @impl true
   def handle_info(:tick, %GameState{timer: 1, status: :started} = state) do
+    # If the timer is being ticked to zero, the game is lost
     Process.send_after(__MODULE__, :lose_sequence, 10)
     {:noreply, struct(state, [status: :lose])}
   end
 
   @impl true
   def handle_info(:tick, %GameState{status: :started} = state) do
+    # If the game is started, tick the timer and set it to tick again in ~1000ms
     state = struct(state, [timer: state.timer - 1])
     update_display(state)
     Process.send_after(__MODULE__, :tick, 1000)
@@ -99,19 +104,27 @@ defmodule Circuit4c.WhoAmI do
 
   @impl true
   def handle_info(:tick, %GameState{} = state) do
+    # If the game is not started, do nothing (and stop ticking).
     {:noreply, state}
   end
 
   @impl true
   def handle_info(:win_sequence, %GameState{status: :win} = state) do
+    # Play the winning sequence
     win_sequence(state)
+
+    # Reset the game
     Process.send_after(__MODULE__, :reset, 1)
+
     {:noreply, struct(state, [status: :pending_reset])}
   end
 
   @impl true
   def handle_info(:lose_sequence, %GameState{status: :lose} = state) do
+    # Play the losing sequence
     lose_sequence(state)
+
+    # Reset the game
     Process.send_after(__MODULE__, :reset, 1)
 
     {:noreply, struct(state, [status: :pending_reset])}
@@ -119,18 +132,15 @@ defmodule Circuit4c.WhoAmI do
 
   @impl true
   def handle_info(:reset, %GameState{status: :pending_reset} = state) do
-    state = struct(state, [
-      current_word: "",
-      remaining_words: nil,
-      round_number: 0,
-      timer: 0,
-      status: :waiting
-    ])
+    # Let the player know they can restart the game now
+    LCD.execute(state.lcd_ref, {:set_cursor, 1, 0})
+    LCD.execute(state.lcd_ref, {:print, "Press to restart!"})
 
-    {:noreply, state}
+    {:noreply, struct(state, [status: :waiting])}
   end
 
   # --- Private Implementation ---
+
   defp update_display(state) do
     LCD.execute(state.lcd_ref, {:set_cursor, 0, 0})
     LCD.execute(state.lcd_ref, {:print, String.pad_trailing(state.current_word, 16)})
@@ -141,8 +151,13 @@ defmodule Circuit4c.WhoAmI do
   defp pad_number(number), do: number |> Integer.to_string |> String.pad_leading(2, "0")
 
   defp start_game(state) do
-    words = Enum.shuffle(state.base_words)
-    state = struct(state, [remaining_words: words, timer: state.time_limit, round_number: 0, status: :started])
+    state = struct(state, [
+      remaining_words: Enum.shuffle(state.base_words),
+      timer: state.time_limit,
+      round_number: 0,
+      status: :started
+    ])
+
     Process.send_after(__MODULE__, :tick, 1100)
     LCD.execute(state.lcd_ref, :clear)
     next_round(state)
@@ -165,8 +180,6 @@ defmodule Circuit4c.WhoAmI do
     LCD.execute(state.lcd_ref, :clear)
     LCD.execute(state.lcd_ref, {:set_cursor, 0, 0})
     LCD.execute(state.lcd_ref, {:print, "All Correct!!"})
-    LCD.execute(state.lcd_ref, {:set_cursor, 1, 0})
-    LCD.execute(state.lcd_ref, {:print, "Press to restart!"})
     Music.win_notes(state.buzzer_pin)
   end
 
@@ -174,8 +187,6 @@ defmodule Circuit4c.WhoAmI do
     LCD.execute(state.lcd_ref, :clear)
     LCD.execute(state.lcd_ref, {:set_cursor, 0, 0})
     LCD.execute(state.lcd_ref, {:print, "Correct: #{pad_number(state.round_number)}"})
-    LCD.execute(state.lcd_ref, {:set_cursor, 1, 0})
-    LCD.execute(state.lcd_ref, {:print, "Press to restart!"})
     Music.lose_notes(state.buzzer_pin)
   end
 end
