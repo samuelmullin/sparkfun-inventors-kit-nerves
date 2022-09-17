@@ -19,6 +19,7 @@ defmodule Circuit4b.Thermometer do
   end
 
   # --- Callbacks ---
+
   @impl true
   def init(_) do
     # Get our LCD config and start the LCD GenServer
@@ -34,7 +35,7 @@ defmodule Circuit4b.Thermometer do
     Task.async(fn -> thermo_loop(ads_ref, lcd_ref) end)
 
     # Store our references in state so they don't get garbage collected
-    {:ok, %{lcd_ref: lcd_ref}}
+    {:ok, %{lcd_ref: lcd_ref, ads_ref: ads_ref}}
   end
 
   def thermo_loop(ads_ref, lcd_ref) do
