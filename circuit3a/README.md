@@ -1,8 +1,8 @@
-# Circuit 1D - RGB LED
+# Circuit 3A - Servo
 
 ## Overview
 
-In [Circuit 1D](./base), you'll control an RGB LED using a photoresistor, potentiometer, ADC and PWM controller.  The breadboard is going to be a mess so be careful with those connections!
+In [Circuit 3A](./base), you'll control a servo using a potentiometer and ADC.
 
 ## Challenges
 
@@ -13,18 +13,16 @@ There are no challenge implementations for this circuit as they don't diverge fr
 In order to complete these circuits, you'll need the following:
 
 - 1 x Breadboard
-- 1 x RGB LED
-- 3 x 330ohm Resistor
 - 7 x M-F Jumper cables
 - 6 x M-M Jumper cables
+- 1 x Microservo
 - 1 x Analog Potentiometer
-- 1 x Analog Photoresistor
 - 1 x ADC1115 Analog-to-Digital Converter
 
 ## New Concepts
 
-### Pulse Width Modulation (PWM)
+### Servo
 
-[PWM](https://en.wikipedia.org/wiki/Pulse-width_modulation) switches a circuit on and off an an incredibly high frequency in order to provide it with a lower percentage of total power.  For an LED, this allows us to do things such as increase or decrease the brightness.  It's also commonly used for things like motors or servos to limit the speed of the device.
+A [Servo](https://en.wikipedia.org/wiki/Servomotor) is a motor that can be moved to a precise position.  There are a number of types, but the kind we are working with here have a very specific range of motion.
 
-The Raspberry Pi can do software PWM on any of its pins, but it has four pins that are dedicated to PWM, separated into two channels (gpios 12 and 18) and (gpios 13 and 19).
+Like we did with RGB LED control in earlier circuits, we use PWM to control the servo.  By spending different PWM pulses, we tell the servo to move to different positions.

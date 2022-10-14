@@ -1,8 +1,8 @@
-# Circuit 1D - RGB LED
+# Circuit 3C - Proximity Alarm
 
 ## Overview
 
-In [Circuit 1D](./base), you'll control an RGB LED using a photoresistor, potentiometer, ADC and PWM controller.  The breadboard is going to be a mess so be careful with those connections!
+In [Circuit 3C](./base), you'll build a proximity alarm by combining an ultrasonic distance sensor, a servo, an RGB LED and a Buzzer.
 
 ## Challenges
 
@@ -17,14 +17,9 @@ In order to complete these circuits, you'll need the following:
 - 3 x 330ohm Resistor
 - 7 x M-F Jumper cables
 - 6 x M-M Jumper cables
-- 1 x Analog Potentiometer
 - 1 x Analog Photoresistor
-- 1 x ADC1115 Analog-to-Digital Converter
+- 1 x Micro Servo
 
 ## New Concepts
 
-### Pulse Width Modulation (PWM)
-
-[PWM](https://en.wikipedia.org/wiki/Pulse-width_modulation) switches a circuit on and off an an incredibly high frequency in order to provide it with a lower percentage of total power.  For an LED, this allows us to do things such as increase or decrease the brightness.  It's also commonly used for things like motors or servos to limit the speed of the device.
-
-The Raspberry Pi can do software PWM on any of its pins, but it has four pins that are dedicated to PWM, separated into two channels (gpios 12 and 18) and (gpios 13 and 19).
+There are no new concepts for this circuit.

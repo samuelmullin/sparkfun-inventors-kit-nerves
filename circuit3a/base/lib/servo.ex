@@ -4,12 +4,12 @@ defmodule Circuit3a.Servo do
   require Logger
   alias Circuits.I2C
 
-  @adc_gain          Application.get_env(:circuit3a, :adc_gain)
-  @ads1115_address   Application.get_env(:circuit3a, :ads1115_address)
-  @analog_inputs     Application.get_env(:circuit3a, :analog_inputs)
-  @potentiometer_max Application.get_env(:circuit3a, :potentiometer_max_reading)
-  @servo_gpio        Application.get_env(:circuit3a, :servo_gpio)
-  @servo_range       Application.get_env(:circuit3a, :servo_range)
+  @adc_gain          Application.compile_env!(:circuit3a, :adc_gain)
+  @ads1115_address   Application.compile_env!(:circuit3a, :ads1115_address)
+  @analog_inputs     Application.compile_env!(:circuit3a, :analog_inputs)
+  @potentiometer_max Application.compile_env!(:circuit3a, :potentiometer_max_reading)
+  @servo_gpio        Application.compile_env!(:circuit3a, :servo_gpio)
+  @servo_range       Application.compile_env!(:circuit3a, :servo_range)
 
   def start_link(state) do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
@@ -58,7 +58,6 @@ defmodule Circuit3a.Servo do
         :timer.sleep(5)
          get_reading(ads_ref, sensor)
       {:ok, reading} ->
-        Logger.info("reading: #{inspect(reading)}")
         {:ok, reading}
     end
   end

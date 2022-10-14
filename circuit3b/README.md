@@ -1,8 +1,8 @@
-# Circuit 1D - RGB LED
+# Circuit 3b - RGB Distance Sensor
 
 ## Overview
 
-In [Circuit 1D](./base), you'll control an RGB LED using a photoresistor, potentiometer, ADC and PWM controller.  The breadboard is going to be a mess so be careful with those connections!
+In [Circuit 3b](./base), you'll control an RGB LED based on the input from an ultrasonic distance sensor.
 
 ## Challenges
 
@@ -17,14 +17,14 @@ In order to complete these circuits, you'll need the following:
 - 3 x 330ohm Resistor
 - 7 x M-F Jumper cables
 - 6 x M-M Jumper cables
-- 1 x Analog Potentiometer
-- 1 x Analog Photoresistor
-- 1 x ADC1115 Analog-to-Digital Converter
+- 1 x HCSR04 Ultraonic Sensor
 
 ## New Concepts
 
-### Pulse Width Modulation (PWM)
+### Elixir Ports
 
-[PWM](https://en.wikipedia.org/wiki/Pulse-width_modulation) switches a circuit on and off an an incredibly high frequency in order to provide it with a lower percentage of total power.  For an LED, this allows us to do things such as increase or decrease the brightness.  It's also commonly used for things like motors or servos to limit the speed of the device.
+Elixir has two built in methods for interacting code that is not written in Erlang or Elixir.  One is a NIF, or a Native Implemented Function, and the other is a Port, which basically monitors the STDOUT of another process.
 
-The Raspberry Pi can do software PWM on any of its pins, but it has four pins that are dedicated to PWM, separated into two channels (gpios 12 and 18) and (gpios 13 and 19).
+One of the advantages of using a NIF or a Port is the ability to work around definciencies or drawbacks that come along with Elixir and the Beam.  One such drawback is millisecond accuracy - for most purposes, millisecond precision is fine, but the ultrasonic sensor requires we send a pull with microsecond precision.  
+
+Since we can't implement that in Elixir/Erlang, we use a Port to consume input from a [driver_url_goes_here](driver written in c).
