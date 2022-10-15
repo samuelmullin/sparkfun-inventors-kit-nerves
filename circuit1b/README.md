@@ -1,4 +1,4 @@
-# Circuit 1A - Potentiometer
+# Circuit 1B - Potentiometer
 
 ## Overview
 

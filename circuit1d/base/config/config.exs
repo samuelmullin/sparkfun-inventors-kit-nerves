@@ -31,7 +31,7 @@ config :circuit1d,
   default_threshold: 22000,
   potentiometer_max_reading: 27375,
   adc1115_address: 72,
-  adc_gain: 6144,
+  adc_gain: 4096,
   analog_inputs: %{
     potentiometer: :ain0,
     photoresistor: :ain1

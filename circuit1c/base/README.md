@@ -55,7 +55,7 @@ The [config](./config/config.exs) for Circuit1b defines the following:
 `led_gpio: 26` - The GPIO pin used to control the LED
 `default_threshold: 12000` - The threshold that will cause the LED to turn on.  If your room is particularly bright(lit by daylight), this may need to be greatly increased.  The value can also be set at runtime by using `set_threshold/1`
 `adc1115_address: 72` - The default for the ADS1115, but since it can be changed it is not hard coded.
-`adc_gain: 6144` - The amount of gain to apply to the value read - this impacts the full scale range.  Accepted values are: 6144, 4096, 2048, 1024, 512, 256.  6144 works best for ads1115 when a 5v reference is used.
+`adc_gain: 4096` - The amount of gain to apply to the value read - this impacts the full scale range.  Accepted values are: 6144, 4096, 2048, 1024, 512, 256.  Since the logic on the Raspberry Pi is 3.3v, we use 4096.
 
 ## Supervision
 

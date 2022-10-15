@@ -54,7 +54,7 @@ The [config](./config/config.exs) for Circuit1b defines the following:
 `led_gpio: 26` - The GPIO pin used to control the LED
 `max_reading: 27235` - The max value we expect to receive from our potentiometer.  This may vary and it can be adjusted up or down if things are not behaving as expected
 `adc1115_address: 72` - The default for the ADS1115, but since it can be changed it is not hard coded.
-`adc_gain: 6144` - The amount of gain to apply to the value read - this impacts the full scale range.  Accepted values are: 6144, 4096, 2048, 1024, 512, 256.  6144 works best for ads1115 when a 5v reference is used.
+`adc_gain: 4096` - The amount of gain to apply to the value read - this impacts the full scale range.  Accepted values are: 6144, 4096, 2048, 1024, 512, 256.  Since the logic on the Raspberry Pi is 3.3v, we use 4096.
 
 A quick note - to play around with these values while the project is running, these configuration values can be modified by using `Application.put_env/3`
 
@@ -115,7 +115,7 @@ A single public API setting is exposed, allowing the user to query the current r
   @impl true
   def handle_call(:get_reading, _from, %{ads_ref: ads_ref} = state) do
     # Get a reading from our potentiometer
-    {:ok, reading} = ADS1115.read(ads_ref, adc1115_address(), {:ain0, :gnd}, 6144)
+    {:ok, reading} = ADS1115.read(ads_ref, adc1115_address(), {:ain0, :gnd}, 4096)
     {:reply, reading, state}
   end
 ```

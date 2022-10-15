@@ -30,7 +30,7 @@ config :circuit1b,
   led_gpio: 26,
   max_reading: 27235,
   adc1115_address: 72,
-  adc_gain: 6144
+  adc_gain: 4096
 
 if Mix.target() == :host or Mix.target() == :"" do
   import_config "host.exs"

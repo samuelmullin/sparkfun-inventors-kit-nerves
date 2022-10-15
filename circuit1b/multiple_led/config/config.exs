@@ -34,7 +34,7 @@ config :circuit1b,
   ],
   max_reading: 27235,
   adc1115_address: 72,
-  adc_gain: 6144,
+  adc_gain: 4096,
   max_cadence_ms: 1000
 
 if Mix.target() == :host or Mix.target() == :"" do
