@@ -4,7 +4,7 @@ defmodule Circuit3b.RGB do
   require Logger
   alias Circuit3b.HCSR04
 
-  @led_gpios Application.get_env(:circuit3b, :led_gpios)
+  @led_gpios Application.compile_env!(:circuit3b, :led_gpios)
 
   def start_link(state) do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)

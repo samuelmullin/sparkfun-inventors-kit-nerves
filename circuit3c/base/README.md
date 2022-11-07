@@ -2,194 +2,206 @@
 
 ## Overview
 
-This circuit changes the colour of an RGB LED based on the amount of light detected by a photoresistor.
+This circuit uses an Ultrasonic distance sensor to trigger a servo, RGB LED and piezo buzzer as part of a proximity alarm.
 
 ## Usage
 
-After [creating and uploading the firmware](../../FIRMWARE.md), and after a startup time of 30s or so, you should be able to change the colour of the LED by covering the photoresistor.
+After [creating and uploading the firmware](../../FIRMWARE.md), and after a startup time of 30s or so, you should be able to trigger the proximity alarm by moving your hand close to the ultrasonic distance sensor.  As you move your hand further away, you should be able to figure out the minimum distance you are required to stay away to avoid trigger it.
 
-If the LED does not change colour as expected, try moving to a darker room or adjusting the default_threshold in the configuration (or by using `set_threshold/1` from the shell).  If it still doesn't work, refer to the [Troubleshooting Guide](../../TROUBLESHOOTING.md)
+If it doesn't work, check the logs for errors from the Ultrasonic distance sensor - if any of the wires are not corrected properly, it's likely that you'll see a `-2` error code indicating a timeout.  If you can't find any errors and things still aren't working, refer to the [Troubleshooting Guide](../../TROUBLESHOOTING.md)
 
 ## Hardware
 
 In order to complete this circuit, you'll need the following:
 
 - 1 x Breadboard
+- 9 x M-F Jumper cables
+- 4 x M-M Jumper cables
 - 1 x RGB LED
-- 3 x 330ohm Resistor
-- 7 x M-F Jumper cables
-- 6 x M-M Jumper cables
-- 1 x Analog Potentiometer
-- 1 x Analog Photoresistor
-- 1 x ADC1115 Analog-to-Digital Converter
-
+- 4 x 330ohm Resistor
+- 1 x 470ohm Resistor
+- 1 x HC-SR04 Ultrasonic Distance Sensor
+- 1 x Micro Servo
+- 1 x Piezo buzzer
+- 
 ## Wiring
 
-[Need a diagram or a picture here]
+There's a lot going on here, so let's break this up:
 
-Start by connecting the 5v rail on the raspberry pi to the power rail on the right side of your breadboard and the ground on the raspberry pi to the ground rail on the left hand side of the breadboard.
+### Breadboard
 
-The RGB Led has a common annode - this means that three of the legs are positive (one for each colour) and one is negative.  We're going to bridge the right and left sides of our breadboard with 330ohm resistors for the three cathode legs of our led and then plug in the led.  On the right side of the breadboard, we're going to connect three GPIOs:  12, 13, 18.  These correspond to three of the four hardware PWM pins on the raspberry pi.  Then we'll connect the annode leg of the LED to the ground rail on the left side of the bread board.
+Connect a ground pin to the ground rail on the left side of the breadboard.
 
-Plug the ADS1115 module into the breadboard on the right hand side.  Make sure to plug it in vertically - across a number of rows - not horizontally.  Connect the vdd pin to the power rail on the right hand side.  Connect the gnd pin to the ground rail on the right hand side.  Connect the SCL pin to GPIO 3 on your raspberry pi.  Connect the SDA pin to GPIO 2 on your raspberry pi.
+### Piezo Buzzer
 
-Plug the potentiometer into the breadboard on the left hand side.  Make sure to plug it in vertically - across a number of rows - not horizontally. Connect the a0 pin on the ADS1115 to the middle pin of the potentiometer.  Connect the power rail to the topmost pin and the ground rail to the bottommost pin.
+Connect the negative side of the Piezo buzzer to the ground rail of the breadboard, and then connect the positive side to GPIO 13, which is one of the hardware PWM pins.
 
-Plug the photoresistor into the breadboard on the left hand side.  Make sure to plug it in vertically - across two rows, not horizontally.
+### RGB LED
 
-Connect a jumper from the power rail to the row with the first leg of the photoresistor.  Connect a 10k ohm resistor from the row with the second leg of the photoresistor to the ground.  Connect the a1 pin from the ADS1115 to the same row as the second leg of the photoresistor.
+The RGB Led has a common annode - this means that three of the legs are positive (one for each colour) and one is negative.  We're going to bridge the right and left sides of our breadboard with 330ohm resistors for the three cathode legs of our led and then plug in the led.  On the right side of the breadboard, we're going to connect three GPIOs: 23, 24, 25.  Note that these are not PWM pins, we're just using normal GPIOs to run the RGB LED this time.  Then we'll connect the annode leg of the LED to the ground rail on the left side of the bread board.
+
+### HC-SR04 Ultrasonic Sensor
+
+Plug the HC-SR04 into the breadboard on the right hand side, spanning four rows (not across a single row).
+
+The HC-SR04 has four pins: VCC, Trigger, Echo and Ground.  VCC can be connected directly to the 5v rail on the raspberry pi, Trigger can be connected to GPIO 22 and Ground can be connected to the ground rail on the left side of the breadboard.
+
+Because the HC-SR04 uses 5v logic, we need to use a voltage divider to connect it to our Raspberry Pi.  Use a 330ohm resistor to bridge the left and right side of the breadboard in the same row as the Trigger pin, then use a 470ohm resistor on the left side to connect that row to the ground rail.  Connect GPIO 27 to the breadboard on the left side between the resistors.  This will ensure that GPIO 27 only receives a 3.3v signal, and prevents us from damaging it.
+
+
+### Microservo
+
+The Microservo requires a PWM signal, but also needs more power than our Raspberry pi wants to provide.  As a result, we'll need to hook our battery pack up to the breadboard to give it ~5v.  Plug it into the breadboard across 3 unused rows at the bottom of the right hand side, then plug the battery pack 5v power out into the same row as the red wire, the battery pack ground onto the ground rail of the raspberry pi, connect the row with the black wire to the ground rail as well, and connect the row with the white wire to GPIO 12.
+
+Optional:  Add an arm to the microservo using a paperclip and tape something funny to it.  Arrange the microservo so that when looking at it from the front, you cannot see the attachment, but when it is triggered, it will swing towards you and show it off.
 
 
 ## Application Definition & Dependencies
 
-Our [application](./mix.exs) simply starts the Circuit1D module.
+Our [application](./mix.exs) simply starts the [Circuit3c](./lib/circuit3c.ex) module.
 
 We have three non-standard dependencies for this project:
 
-[ads1115](https://hexdocs.pm/ads1115/readme.html) which allows for control of our ADS1115 analog to digital converter
-[circuits_gpio](https://hexdocs.pm/circuits_gpio/Circuits.GPIO.html) which allows for reading and writing to the GPIO pins on the raspberry pi
-[:pigpiox](LINK GOES HERE) which allows us to use PWM with our GPIOs
+[:nerves_hcsr04](https://www.github.com/samuelmullin/nerves_hcsr04) (a fork updated to work with a  newer version of Elixir/Nerves) which allows for measuring distance using the HC-SR04 ultrasonic distance sensor using an Elixir Port. 
+
+[:pigpiox](https://hexdocs.pm/pigpiox/Pigpiox.html) which allows us to use PWM with our GPIOs
+
+[:circuits_gpio](https://hexdocs.pm/circuits_gpio/Circuits.GPIO.html) which allows for reading and writing to the GPIO pins on the raspberry pi
 
 ## Config
 
 The [config](./config/config.exs) for Circuit1b defines the following:
 
-
-`default_threshold: 12000` - The threshold that will cause the LED to turn on.  If your room is particularly bright(lit by daylight), this may need to be greatly increased.  The value can also be changed while running by using `set_threshold/1`
-`potentiometer_max_reading: 27375` - The max value we expect to receive from our potentiometer.  This may vary and it can be adjusted up or down if things are not behaving as expected
-`adc1115_address: 72` - The default for the ADS1115, but since it can be changed it is not hard coded.
-`adc_gain: 4096` - The amount of gain to apply to the value read - this impacts the full scale range.  Accepted values are: 6144, 4096, 2048, 1024, 512, 256.  Since the logic on the Raspberry Pi is 3.3v, we use 4096.
+config :circuit3c,
+```elixir
+  led_gpios: %{
+    red: 23,
+    green: 24,
+    blue: 25
+  },
+``` - The GPIO pin config for our RGB LED
 
 ```elixir
-analog_inputs: %{
-  potentiometer: :ain0,
-  photoresistor: :ain1
-}
-``` - Mappings from the analog input pins to the sensors we are using.
+  hcsr04: %{
+    trigger: 22,
+    echo: 27
+  },
+``` - The GPIO pin config for our HC-SR04 Ultrasonic sensor
 
 ```elixir
-led_gpios: %{
-  red: 13,
-  green: 18,
-  blue: 12
-}
-``` - Mappings from the pins on the cathode pins on the RBG LED to GPIO pins on the Raspberry Pi.
+  servo_gpio: 12,
+  servo_range: {800, 2200},
+  buzzer_gpio: 13
+``` - The GPIO pin config for our servo and buzzer, along with the defined range for our servo.
 
 
 ## Supervision
 
-The [supervisor](./lib/supervisor.ex) starts a single child process (Circuit1d.RGB), and it specifies a `:one_for_one` strategy, which means if the child process dies, the supervisor will start a new one. 
+The [supervisor](./lib/supervisor.ex) starts a single child process (Circuit3c.Alarm), and it specifies a `:one_for_one` strategy, which means if the child process dies, the supervisor will start a new one. 
 
 ## Application Logic
 
-The application logic for this circuit is contained in the [Circuit1d.RGB module](./lib/rgb.ex).
+The application logic for this circuit is contained in the [Circuit3c.Alarm module](./lib/alarm.ex).
 
 ```elixir
- # --- Public API ---
+defmodule Circuit3c.Alarm do
+  use GenServer
 
-  @doc"""
-    Get the current reading from the photoresistor
-  """
-  def get_photoresistor_reading() do
-    GenServer.call(__MODULE__, :photoresistor_reading)
-  end
+  require Logger
+  alias Circuit3c.HCSR04
+  alias Circuits.GPIO
 
-  @doc"""
-    Get the current reading from the potentiometer
-  """
-  def get_potentiometer_reading() do
-    GenServer.call(__MODULE__, :potentiometer_reading)
-  end
+  @buzzer_gpio       Application.compile_env!(:circuit3c, :buzzer_gpio)
+  @led_gpios         Application.compile_env!(:circuit3c, :led_gpios)
+  @servo_gpio        Application.compile_env!(:circuit3c, :servo_gpio)
+  @servo_range       Application.compile_env!(:circuit3c, :servo_range)
+  @hcrs04            Application.compile_env!(:circuit3c, :hcrs04)
 
-  @doc"""
-    Get the current minimum threshold for turning on the LED
-  """
-  def get_threshold() do
-    GenServer.call(__MODULE__, :get_threshold)
+  def start_link(state) do
+    GenServer.start_link(__MODULE__, state, name: __MODULE__)
   end
-
-  @doc"""
-    Get the current minimum threshold for turning on the LED
-  """
-  def set_threshold(value) when is_integer(value) do
-    GenServer.call(__MODULE__, {:set_threshold, value})
-  end
-  def set_threshold(_value), do: {:error, :invalid_integer}
 ```
 
-Three functions are exposed via the public API, allowing the user to get the current readings, get the current threshold or set a new minimum threshold.  Like [Circuit1D](../../circuit1d/), `set_threshold/1` is particularly useful here as the minimum threshold required to turn on the light will vary greatly depending on the ambient lighting of the room.
-
+First we define all our module attributes and our start_link function.
 
 ```elixir
- # --- Callbacks ---
 
+  # --- Callbacks ---
   @impl true
   def init(_) do
-    # Open I2C-1 for input
-    {:ok, ads_ref} = I2C.open("i2c-1")
+    # Get our HCSR04 config and start the HCSR04 GenServer
+    hcsr04_config = Application.fetch_env!(:circuit3c, :hcsr04)
+    {:ok, hcsr04_ref} = HCSR04.start_link({hcsr04_config.echo, hcsr04_config.trigger})
 
-    # Kick off recursive task to blink our LED
-    Task.async(fn -> light_loop(ads_ref) end)
+    # Open LED GPIOs and store references
+    {:ok, red_ref} = GPIO.open(@led_gpios.red, :output)
+    {:ok, green_ref} = GPIO.open(@led_gpios.green, :output)
+    {:ok, blue_ref} = GPIO.open(@led_gpios.blue, :output)
+
+    state = %{
+      red_ref: red_ref,
+      green_ref: green_ref,
+      blue_ref: blue_ref,
+      hcsr04_ref: hcsr04_ref
+    }
+
+    # Kick off recursive task to light our LED
+    Task.async(fn -> alarm_loop(state) end)
 
     # Store our references in state so they don't get garbage collected
-    {:ok, %{ads_ref: ads_ref, threshold: default_threshold()}}
-  end
-
-  @impl true
-  def handle_call(:photoresistor_reading, _from, %{ads_ref: ads_ref} = state) do
-    {:ok, reading} = get_reading(ads_ref, :photoresistor)
-    {:reply, reading, state}
-  end
-
-  @impl true
-  def handle_call(:potentiometer_reading, _from, %{ads_ref: ads_ref} = state) do
-    {:ok, reading} = get_reading(ads_ref, :potentiometer)
-    {:reply, reading, state}
-  end
-
-  @impl true
-  def handle_call(:get_threshold, _from, %{threshold: threshold} = state) do
-    {:reply, threshold, state}
-  end
-
-  @impl true
-  def handle_call({:set_threshold, threshold}, _from, state) do
-    {:reply, :ok, Map.put(state, :threshold, threshold)}
+    {:ok, state}
   end
 ```
 
-All the callbacks here should seem very similar to the callbacks implemented in [Circuit1b](../../circuit1b/) and [Circuit1c](../../circuit1c/).
+Our only callback is `init/1`, which kicks off our HC-SR04 server, opens references for our LED GPIOs and kicks off the alarm loop.
 
 ```elixir
   # Private Implementation
-
-  defp light_loop(ads_ref) do
-    threshold = get_threshold()
-    {:ok, potentiometer_reading} = get_reading(ads_ref, :potentiometer)
-    {:ok, photoresistor_reading} = get_reading(ads_ref, :photoresistor)
-
-    over_threshold = photoresistor_reading <= threshold
-    led_brightness = round((potentiometer_reading / potentiometer_max()) * 1_000_000) + 50
-
-    light_led(over_threshold, led_brightness)
-    light_loop(ads_ref)
+  defp alarm_loop(refs) do
+    with :ok             <- HCSR04.update(refs.hcsr04_ref),
+         {:ok, distance} <- HCSR04.info(refs.hcsr04_ref)
+      do
+        check_alarm(distance, refs)
+      else
+        {:error, code} ->
+          Logger.error("Error received when obtaining HCSR04 Reading: #{code}")
+      end
+    :timer.sleep(100)
+    alarm_loop(refs)
   end
 
-  defp light_led(true, led_brightness) do
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:green), 1000, led_brightness)
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:red), 0, 0)
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:blue), 0, 0)
+  # <25 CM, Light LED Red, Servo to Max, Buzzer
+  defp check_alarm(distance, refs) when distance < 10 do
+    {_servo_min, servo_max} = @servo_range
+    GPIO.write(refs.red_ref, 1)
+    GPIO.write(refs.green_ref, 0)
+    GPIO.write(refs.blue_ref, 0)
+    Pigpiox.Pwm.hardware_pwm(@buzzer_gpio, 800, 500_000)
+    Pigpiox.GPIO.set_servo_pulsewidth(@servo_gpio, servo_max)
   end
-  defp light_led(false, led_brightness) do
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:green), 0, 0)
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:red), 1000, led_brightness)
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:blue), 0, 0)
-  end
+  # <50cm, Light LED Yellow
+  defp check_alarm(distance, refs) when distance < 50 do
+    {servo_min, _servo_max} = @servo_range
+    GPIO.write(refs.red_ref,  1)
+    GPIO.write(refs.green_ref,1)
+    GPIO.write(refs.blue_ref, 0)
+    Pigpiox.Pwm.hardware_pwm(@buzzer_gpio, 0, 0)
+    Pigpiox.GPIO.set_servo_pulsewidth(@servo_gpio, servo_min)
 
-  defp get_reading(ads_ref, sensor) do
-    analog_pin = sensor_analog_input(sensor)
-    ADS1115.read(ads_ref, adc1115_address(), {analog_pin, :gnd}, adc_gain())
   end
+  # >50cm, Light LED Green
+  defp check_alarm(_distance, refs) do
+    {servo_min, _servo_max} = @servo_range
+    GPIO.write(refs.red_ref, 0)
+    GPIO.write(refs.green_ref, 1)
+    GPIO.write(refs.blue_ref, 0)
+    Pigpiox.Pwm.hardware_pwm(@buzzer_gpio, 0, 0)
+    Pigpiox.GPIO.set_servo_pulsewidth(@servo_gpio, servo_min)
+  end
+end
 ```
 
-`light_loop/1` is called by our init function and will continue calling itself over and over.  It checks the readings from the potentiometer and photoresistor, checks if we're over the threshold to change the LED colour and adjusts the brightness of the LED.
+Our private implementation defines two functions:
+
+`alarm_loop/1` - Gets an updated reading from our HC-SR04 and calls `check_alarm/2`
+`check_alarm/2` - Uses the reading from alarm loop to determine what to do with the Servo, LED and Buzzer.  If the object is 25cm or closer, the servo swings forward, the buzzer sounds and the LED turns red.  Otherwise, the LED just turns yellow or green depending on the distance.

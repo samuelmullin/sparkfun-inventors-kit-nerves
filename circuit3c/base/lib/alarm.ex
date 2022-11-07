@@ -5,11 +5,11 @@ defmodule Circuit3c.Alarm do
   alias Circuit3c.HCSR04
   alias Circuits.GPIO
 
-  @buzzer_gpio       Application.get_env(:circuit3c, :buzzer_gpio)
-  @led_gpios         Application.get_env(:circuit3c, :led_gpios)
-  @servo_gpio        Application.get_env(:circuit3c, :servo_gpio)
-  @servo_range       Application.get_env(:circuit3c, :servo_range)
-  @hcrs04            Application.get_env(:circuit3c, :hcrs04)
+  @buzzer_gpio       Application.compile_env!(:circuit3c, :buzzer_gpio)
+  @led_gpios         Application.compile_env!(:circuit3c, :led_gpios)
+  @servo_gpio        Application.compile_env!(:circuit3c, :servo_gpio)
+  @servo_range       Application.compile_env!(:circuit3c, :servo_range)
+  @hcrs04            Application.compile_env!(:circuit3c, :hcrs04)
 
   def start_link(state) do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)

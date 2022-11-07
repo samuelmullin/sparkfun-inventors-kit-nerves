@@ -11,14 +11,22 @@ There are no challenge implementations for this circuit as they don't diverge fr
 ## Hardware
 
 In order to complete these circuits, you'll need the following:
+- 1 x Breadboard
+- 1 x Common Annode RGB LED
+- 4 x 330ohm Resistor
+- 1 x 470ohm Resistor
+
+
 
 - 1 x Breadboard
+- 9 x M-F Jumper cables
+- 4 x M-M Jumper cables
 - 1 x RGB LED
-- 3 x 330ohm Resistor
-- 7 x M-F Jumper cables
-- 6 x M-M Jumper cables
-- 1 x Analog Photoresistor
+- 4 x 330ohm Resistor
+- 1 x 470ohm Resistor
+- 1 x HC-SR04 Ultrasonic Distance Sensor
 - 1 x Micro Servo
+- 1 x Piezo buzzer
 
 ## New Concepts
 

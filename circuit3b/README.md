@@ -13,17 +13,22 @@ There are no challenge implementations for this circuit as they don't diverge fr
 In order to complete these circuits, you'll need the following:
 
 - 1 x Breadboard
-- 1 x RGB LED
-- 3 x 330ohm Resistor
+- 1 x Common Annode RGB LED
+- 4 x 330ohm Resistor
+- 1 x 470ohm resistor
 - 7 x M-F Jumper cables
-- 6 x M-M Jumper cables
-- 1 x HCSR04 Ultraonic Sensor
+- 2 x M-M Jumper cables
+- 1 x HC-SR04 Ultrasonic Distance Sensor
 
 ## New Concepts
 
 ### Ultrasonic Distance Sensor (HC-SR04)
 
-An ultrasonic distance sensor such as the [HC-SR04](https://www.sparkfun.com/products/15569) works by sending out a small burst of high frequency sound, then measuring how long it takes to receive that pulse back. Based on the timing, we can infer the approximate distance to an object.
+An ultrasonic distance sensor such as the [HC-SR04](https://www.sparkfun.com/products/15569) works by sending out a small burst of high frequency sound, then measuring how long it takes to receive that pulse back. Based on the timing, we can infer the approximate distance to an object.  Because the sensor is driven by a 5v signal, we need a voltage divider between the echo pin and our raspberry pi (which uses 3.3v logic)
+
+### Voltage Divider
+
+A [voltage divider](https://en.wikipedia.org/wiki/Voltage_divider) uses two resistors to reduce an output voltage to a fraction of it's input voltage.  They work in the same way that a potentiometer does.  The amount of output we get in the middle of the two resistors is a percentage of the input voltage equal to the fraction represented by the resistors.  Sparkfun has some detailed documentation on the concept [here](https://learn.sparkfun.com/tutorials/voltage-dividers/all)
 
 ### Elixir Ports
 

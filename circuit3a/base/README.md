@@ -41,11 +41,11 @@ We have three non-standard dependencies for this project:
 
 The [config](./config/config.exs) for Circuit3a defines the following:
 
-`potentiometer_max_reading: 27375` - The max value we expect to receive from our potentiometer.  This may vary and it can be adjusted up or down if things are not behaving as expected
-
 `adc1115_address: 72` - The default for the ADS1115, but since it can be changed it is not hard coded.
 
-`adc_gain: 4096` - ADC Gain explanation goes here
+`adc_gain: 4096` - The amount of gain to apply to the value read - this impacts the full scale range.  Accepted values are: 6144, 4096, 2048, 1024, 512, 256.  Since the logic on the Raspberry Pi is 3.3v, we use 4096.  Because we can't reach the top end of the range, we cap the max reading from our potentiometer as well to ensure we can get a full range of readings.
+
+`potentiometer_max_reading: 26400` - The max value we expect to receive from our potentiometer.  This is related to our ADC gain.  Setting the max allows us to adjust the movement of our servo so that we can reach the maximum range of the servo despite only being able to output at most 3.3v
 
 ```elixir
 analog_inputs: %{

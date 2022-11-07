@@ -35,7 +35,6 @@ defmodule Circui3b.MixProject do
       {:shoehorn, "~> 0.8.0"},
       {:ring_logger, "~> 0.8.3"},
       {:toolshed, "~> 0.2.13"},
-      {:circuits_gpio, "~> 0.4"},
       {:pigpiox, "~> 0.1"},
       {:nerves_hcsr04, git: "https://github.com/samuelmullin/nerves_hcsr04"},
 

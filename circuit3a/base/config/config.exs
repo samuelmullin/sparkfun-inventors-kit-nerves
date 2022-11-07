@@ -27,7 +27,7 @@ config :nerves, source_date_epoch: "1646185297"
 config :logger, backends: [RingLogger]
 
 config :circuit3a,
-  potentiometer_max_reading: 27375,
+  potentiometer_max_reading: 26400,
   ads1115_address: 72,
   adc_gain: 4096,
   analog_inputs: %{
