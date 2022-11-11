@@ -25,171 +25,154 @@ In order to complete this circuit, you'll need the following:
 
 ## Wiring
 
-[Need a diagram or a picture here]
+In this circuit we are going to use both the 3.3v and 5v rails of the Raspberry pi, so pay attention to which to use in each case.  Connect a ground from the pi to the ground rails on each side of the breadobard, and connect the 3.3v to the left side and the 5v to the right side.
 
-Start by connecting the 5v rail on the raspberry pi to the power rail on the right side of your breadboard and the ground on the raspberry pi to the ground rail on the left hand side of the breadboard.
+First let's plug the potentiometer into the breadboard.  We're going to use it to adjust the contrast of the LCD, so connect the topmost pin to the 5v rail and the bottommost pin to the ground rail.  We'll plug the middle pin into the LCD in a moment.
 
-The RGB Led has a common annode - this means that three of the legs are positive (one for each colour) and one is negative.  We're going to bridge the right and left sides of our breadboard with 330ohm resistors for the three cathode legs of our led and then plug in the led.  On the right side of the breadboard, we're going to connect three GPIOs:  12, 13, 18.  These correspond to three of the four hardware PWM pins on the raspberry pi.  Then we'll connect the annode leg of the LED to the ground rail on the left side of the bread board.
+Plug the LCD screen into the breadboard.  The pins are located on the top-left corner of the LCD module, whichever direction you connect it, you are going to count the pins starting at 1 from that top left pin.  There are 16 pins in total, so let's connect them from top to bottom.
 
-Plug the ADS1115 module into the breadboard on the right hand side.  Make sure to plug it in vertically - across a number of rows - not horizontally.  Connect the vdd pin to the power rail on the right hand side.  Connect the gnd pin to the ground rail on the right hand side.  Connect the SCL pin to GPIO 3 on your raspberry pi.  Connect the SDA pin to GPIO 2 on your raspberry pi.
+1) Connect to the ground rail
+2) Connect to the 5v rail
+3) Connect to the middle pin of the potentiometer
+4) Connect to GPIO 21
+5) Connect to the ground rail
+6) Connect to GPIO 16
+7) Unused
+8) Unused
+9) Unused
+10) Unused
+11) Connect to GPIO 22
+12) Connect to GPIO 23
+13) Connect to GPIO 24
+14) Connect to GPIO 25
+15) Connect to 5v rail
+16) Connect to Ground rail
 
-Plug the potentiometer into the breadboard on the left hand side.  Make sure to plug it in vertically - across a number of rows - not horizontally. Connect the a0 pin on the ADS1115 to the middle pin of the potentiometer.  Connect the power rail to the topmost pin and the ground rail to the bottommost pin.
 
-Plug the photoresistor into the breadboard on the left hand side.  Make sure to plug it in vertically - across two rows, not horizontally.
+Next, we'll connect the ADS1115 and the TMP36 Sensor.
 
-Connect a jumper from the power rail to the row with the first leg of the photoresistor.  Connect a 10k ohm resistor from the row with the second leg of the photoresistor to the ground.  Connect the a1 pin from the ADS1115 to the same row as the second leg of the photoresistor.
+Plug the ADS1115 module into the breadboard. Make sure to plug it in vertically - across a number of rows - not horizontally.  Connect the vdd pin to the 3.3v rail.  Connect the gnd pin to the ground rail.  Connect the SCL pin to GPIO 3 on your raspberry pi.  Connect the SDA pin to GPIO 2 on your raspberry pi.
+
+Finally, plug the TMP36 sensor into the breadboard.  Plug the 3.3v rail into the topmost pin and the ground rail into the bottommost pin.  Connect the middle pin to a0 on the ADS1115.
 
 
 ## Application Definition & Dependencies
 
-Our [application](./mix.exs) simply starts the Circuit1D module.
+Our [application](./mix.exs) simply starts the Circuit4b module.
 
 We have three non-standard dependencies for this project:
 
 [ads1115](https://hexdocs.pm/ads1115/readme.html) which allows for control of our ADS1115 analog to digital converter
-[circuits_gpio](https://hexdocs.pm/circuits_gpio/Circuits.GPIO.html) which allows for reading and writing to the GPIO pins on the raspberry pi
-[:pigpiox](LINK GOES HERE) which allows us to use PWM with our GPIOs
+[lcd_display](https://hexdocs.pm/lcd_display/readme.html) which allows for control of our HD44780 display
 
 ## Config
 
-The [config](./config/config.exs) for Circuit1b defines the following:
-
-
-`default_threshold: 12000` - The threshold that will cause the LED to turn on.  If your room is particularly bright(lit by daylight), this may need to be greatly increased.  The value can also be changed while running by using `set_threshold/1`
-`potentiometer_max_reading: 27375` - The max value we expect to receive from our potentiometer.  This may vary and it can be adjusted up or down if things are not behaving as expected
-`adc1115_address: 72` - The default for the ADS1115, but since it can be changed it is not hard coded.
-`adc_gain: 4096` - The amount of gain to apply to the value read - this impacts the full scale range.  Accepted values are: 6144, 4096, 2048, 1024, 512, 256.  Since the logic on the Raspberry Pi is 3.3v, we use 4096.
+The [config](./config/config.exs) for Circuit4b defines the following:
 
 ```elixir
-analog_inputs: %{
-  potentiometer: :ain0,
-  photoresistor: :ain1
-}
-``` - Mappings from the analog input pins to the sensors we are using.
+config :circuit4b,
+  lcd_config: %{
+    pin_rs: 21,
+    pin_en: 16,
+    pin_d4: 22,
+    pin_d5: 23,
+    pin_d6: 24,
+    pin_d7: 25
+  },
+``` 
+
+This is the config for the GPIO pins we'll use to control the LCD
 
 ```elixir
-led_gpios: %{
-  red: 13,
-  green: 18,
-  blue: 12
-}
-``` - Mappings from the pins on the cathode pins on the RBG LED to GPIO pins on the Raspberry Pi.
+  ads1115_address: 72,
+  adc_gain: 4096,
+  thermometer_input: :ain0
+```
+
+This is the config we'll use to read the temperature of the TMP36 via the ADS1115
 
 
 ## Supervision
 
-The [supervisor](./lib/supervisor.ex) starts a single child process (Circuit1d.RGB), and it specifies a `:one_for_one` strategy, which means if the child process dies, the supervisor will start a new one. 
+The [supervisor](./lib/supervisor.ex) starts a single child process (Circuit4b.Thermometer), and it specifies a `:one_for_one` strategy, which means if the child process dies, the supervisor will start a new one. 
 
 ## Application Logic
 
-The application logic for this circuit is contained in the [Circuit1d.RGB module](./lib/rgb.ex).
+The application logic for this circuit is contained in the [Circuit4b.Thermometer Module](./lib/thermometer.ex).
 
 ```elixir
- # --- Public API ---
+defmodule Circuit4b.Thermometer do
+  use GenServer
 
-  @doc"""
-    Get the current reading from the photoresistor
-  """
-  def get_photoresistor_reading() do
-    GenServer.call(__MODULE__, :photoresistor_reading)
-  end
+  require Logger
+  alias Circuits.I2C
 
-  @doc"""
-    Get the current reading from the potentiometer
-  """
-  def get_potentiometer_reading() do
-    GenServer.call(__MODULE__, :potentiometer_reading)
-  end
+  @adc_gain Application.compile_env!(:circuit4b, :adc_gain)
+  @ads1115_address Application.compile_env!(:circuit4b, :ads1115_address)
+  @thermometer_input Application.compile_env!(:circuit4b, :thermometer_input)
 
-  @doc"""
-    Get the current minimum threshold for turning on the LED
-  """
-  def get_threshold() do
-    GenServer.call(__MODULE__, :get_threshold)
-  end
+  # Per datasheet, TMP36 has an offset of 0.5v
+  @tmp36_offset 0.5
 
-  @doc"""
-    Get the current minimum threshold for turning on the LED
-  """
-  def set_threshold(value) when is_integer(value) do
-    GenServer.call(__MODULE__, {:set_threshold, value})
+  # Voltage range of sensor (0-4.096v) / ADC resolution (2^15 steps)
+  @reading_to_voltage_multiplier 4.096 / 32768
+
+  def start_link(state) do
+    GenServer.start_link(__MODULE__, state, name: __MODULE__)
   end
-  def set_threshold(_value), do: {:error, :invalid_integer}
 ```
 
-Three functions are exposed via the public API, allowing the user to get the current readings, get the current threshold or set a new minimum threshold.  Like [Circuit1D](../../circuit1d/), `set_threshold/1` is particularly useful here as the minimum threshold required to turn on the light will vary greatly depending on the ambient lighting of the room.
-
+This block defines our module attributes, which include some config values, formulas and constants, as well as our start_link function.
 
 ```elixir
- # --- Callbacks ---
+  # --- Callbacks ---
 
   @impl true
   def init(_) do
+    # Get our LCD config and start the LCD GenServer
+    lcd_config = Application.fetch_env!(:circuit4b, :lcd_config)
+    {:ok, lcd_ref} = LcdDisplay.HD44780.GPIO.start(lcd_config)
+
     # Open I2C-1 for input
     {:ok, ads_ref} = I2C.open("i2c-1")
 
-    # Kick off recursive task to blink our LED
-    Task.async(fn -> light_loop(ads_ref) end)
+    # Clear the screen
+    LcdDisplay.HD44780.GPIO.execute(lcd_ref, :clear)
+
+    Task.async(fn -> thermo_loop(ads_ref, lcd_ref) end)
 
     # Store our references in state so they don't get garbage collected
-    {:ok, %{ads_ref: ads_ref, threshold: default_threshold()}}
-  end
-
-  @impl true
-  def handle_call(:photoresistor_reading, _from, %{ads_ref: ads_ref} = state) do
-    {:ok, reading} = get_reading(ads_ref, :photoresistor)
-    {:reply, reading, state}
-  end
-
-  @impl true
-  def handle_call(:potentiometer_reading, _from, %{ads_ref: ads_ref} = state) do
-    {:ok, reading} = get_reading(ads_ref, :potentiometer)
-    {:reply, reading, state}
-  end
-
-  @impl true
-  def handle_call(:get_threshold, _from, %{threshold: threshold} = state) do
-    {:reply, threshold, state}
-  end
-
-  @impl true
-  def handle_call({:set_threshold, threshold}, _from, state) do
-    {:reply, :ok, Map.put(state, :threshold, threshold)}
+    {:ok, %{lcd_ref: lcd_ref, ads_ref: ads_ref}}
   end
 ```
 
-All the callbacks here should seem very similar to the callbacks implemented in [Circuit1b](../../circuit1b/) and [Circuit1c](../../circuit1c/).
+Our init starts the LCD process, opens an I2C connection to the ADS1115 and kicks off our thermo-loop which will control the LCD using the output from the themometer.
 
 ```elixir
-  # Private Implementation
+  def thermo_loop(ads_ref, lcd_ref) do
+    # It's possible to get a transient error - if we do, catch it and wait before our next reading.
+    case ADS1115.read(ads_ref, @ads1115_address, {@thermometer_input, :gnd}, @adc_gain) do
+      {:error, :i2c_nak} ->
+        Logger.error("Error getting reading, skipping this reading.")
+      {:ok, reading} ->
+        Logger.info("reading: #{inspect(reading)}")
 
-  defp light_loop(ads_ref) do
-    threshold = get_threshold()
-    {:ok, potentiometer_reading} = get_reading(ads_ref, :potentiometer)
-    {:ok, photoresistor_reading} = get_reading(ads_ref, :photoresistor)
+        reading = (reading * @reading_to_voltage_multiplier - @tmp36_offset) * 100
 
-    over_threshold = photoresistor_reading <= threshold
-    led_brightness = round((potentiometer_reading / potentiometer_max()) * 1_000_000) + 50
+        reading =
+          reading
+          |> Float.round(1)
+          |> Float.to_string()
 
-    light_led(over_threshold, led_brightness)
-    light_loop(ads_ref)
+        # Reset cursor to
+        LcdDisplay.HD44780.GPIO.execute(lcd_ref, {:set_cursor, 0, 0})
+        LcdDisplay.HD44780.GPIO.execute(lcd_ref, {:print, "Temp: #{reading}c"})
+    end
+    :timer.sleep(1000)
+    thermo_loop(ads_ref, lcd_ref)
   end
 
-  defp light_led(true, led_brightness) do
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:green), 1000, led_brightness)
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:red), 0, 0)
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:blue), 0, 0)
-  end
-  defp light_led(false, led_brightness) do
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:green), 0, 0)
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:red), 1000, led_brightness)
-    Pigpiox.Pwm.hardware_pwm(led_gpio(:blue), 0, 0)
-  end
-
-  defp get_reading(ads_ref, sensor) do
-    analog_pin = sensor_analog_input(sensor)
-    ADS1115.read(ads_ref, adc1115_address(), {analog_pin, :gnd}, adc_gain())
-  end
+end
 ```
 
-`light_loop/1` is called by our init function and will continue calling itself over and over.  It checks the readings from the potentiometer and photoresistor, checks if we're over the threshold to change the LED colour and adjusts the brightness of the LED.
+Our thermo-loop reads the temperature from the TMP36 (via the ADS1115), converts that value to a celcius value with a precision of 1, then prints that value to the screen.  It then sleeps for 1 second before calling itself again.

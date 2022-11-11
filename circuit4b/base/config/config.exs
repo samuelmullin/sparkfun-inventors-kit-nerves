@@ -29,16 +29,14 @@ config :logger, backends: [RingLogger]
 config :circuit4b,
   lcd_config: %{
     pin_rs: 21,
-    pin_rw: 20,
     pin_en: 16,
     pin_d4: 22,
     pin_d5: 23,
     pin_d6: 24,
-    pin_d7: 25,
-    pin_led: 4
+    pin_d7: 25
   },
   ads1115_address: 72,
-  adc_gain: 2048,
+  adc_gain: 4096,
   thermometer_input: :ain0
 
 if Mix.target() == :host or Mix.target() == :"" do

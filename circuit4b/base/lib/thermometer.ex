@@ -4,15 +4,15 @@ defmodule Circuit4b.Thermometer do
   require Logger
   alias Circuits.I2C
 
-  @adc_gain Application.get_env(:circuit4b, :adc_gain)
-  @ads1115_address Application.get_env(:circuit4b, :ads1115_address)
-  @thermometer_input Application.get_env(:circuit4b, :thermometer_input)
+  @adc_gain Application.compile_env!(:circuit4b, :adc_gain)
+  @ads1115_address Application.compile_env!(:circuit4b, :ads1115_address)
+  @thermometer_input Application.compile_env!(:circuit4b, :thermometer_input)
 
   # Per datasheet, TMP36 has an offset of 0.5v
   @tmp36_offset 0.5
 
-  # Voltage range of sensor (0-2v) / ADC resolution (2^15 steps)
-  @reading_to_voltage_multiplier 2.048 / 32768
+  # Voltage range of sensor (0-4.096v) / ADC resolution (2^15 steps)
+  @reading_to_voltage_multiplier 4.096 / 32768
 
   def start_link(state) do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
