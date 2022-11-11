@@ -60,7 +60,7 @@ Finally, plug the TMP36 sensor into the breadboard.  Plug the 3.3v rail into the
 
 Our [application](./mix.exs) simply starts the Circuit4b module.
 
-We have three non-standard dependencies for this project:
+We have two non-standard dependencies for this project:
 
 [ads1115](https://hexdocs.pm/ads1115/readme.html) which allows for control of our ADS1115 analog to digital converter
 [lcd_display](https://hexdocs.pm/lcd_display/readme.html) which allows for control of our HD44780 display

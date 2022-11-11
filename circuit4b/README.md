@@ -1,4 +1,4 @@
-# Circuit 1D - RGB LED
+# Circuit 4B - Temperature Sensor LCD Display
 
 ## Overview
 
@@ -13,8 +13,8 @@ There are no challenge implementations for this circuit as they don't diverge fr
 In order to complete these circuits, you'll need the following:
 
 - 1 x Breadboard
-- 8 x M-F Jumper cables
-- 8 x M-M Jumper cables
+- 10 x M-F Jumper cables
+- 14 x M-M Jumper cables
 - 1 x Analog Potentiometer
 - 1 x HD44780 Based 16x2 LCD Screen
 - 1 x ADS1115 Analog-to-Digital Converter
