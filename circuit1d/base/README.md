@@ -25,8 +25,6 @@ In order to complete this circuit, you'll need the following:
 
 ## Wiring
 
-[Need a diagram or a picture here]
-
 Start by connecting the 5v rail on the raspberry pi to the power rail on the right side of your breadboard and the ground on the raspberry pi to the ground rail on the left hand side of the breadboard.
 
 The RGB Led has a common annode - this means that three of the legs are positive (one for each colour) and one is negative.  We're going to bridge the right and left sides of our breadboard with 330ohm resistors for the three cathode legs of our led and then plug in the led.  On the right side of the breadboard, we're going to connect three GPIOs:  12, 13, 18.  These correspond to three of the four hardware PWM pins on the raspberry pi.  Then we'll connect the annode leg of the LED to the ground rail on the left side of the bread board.
@@ -52,13 +50,13 @@ We have three non-standard dependencies for this project:
 
 ## Config
 
-The [config](./config/config.exs) for Circuit1b defines the following:
-
+The [config](./config/config.exs) for Circuit1D defines the following:
 
 `default_threshold: 12000` - The threshold that will cause the LED to turn on.  If your room is particularly bright(lit by daylight), this may need to be greatly increased.  The value can also be changed while running by using `set_threshold/1`
 `potentiometer_max_reading: 27375` - The max value we expect to receive from our potentiometer.  This may vary and it can be adjusted up or down if things are not behaving as expected
 `adc1115_address: 72` - The default for the ADS1115, but since it can be changed it is not hard coded.
 `adc_gain: 4096` - The amount of gain to apply to the value read - this impacts the full scale range.  Accepted values are: 6144, 4096, 2048, 1024, 512, 256.  Since the logic on the Raspberry Pi is 3.3v, we use 4096.
+
 ```elixir
 analog_inputs: %{
   potentiometer: :ain0,

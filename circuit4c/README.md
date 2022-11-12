@@ -1,8 +1,10 @@
-# Circuit 1D - RGB LED
+# Circuit 4C - DIY Who Am I Game
 
 ## Overview
 
-In [Circuit 1D](./base), you'll control an RGB LED using a photoresistor, potentiometer, ADC and PWM controller.  The breadboard is going to be a mess so be careful with those connections!
+In [Circuit 4C](./base), You'll create a game where a word is displayed on an LCD screen and the player has to guess the word from hints given by other players.  Once they guess the word, they press a button and a new word is displayed.  If they guess all the words before the timer runs out, they win!
+
+Note that while the example in the book powers the Arduino using the battery pack, we have the Pi plugged in.  Powering the pi would require an extra module, such as a Li-ion battery hat, that I don't have on hand.
 
 ## Challenges
 
@@ -13,18 +15,13 @@ There are no challenge implementations for this circuit as they don't diverge fr
 In order to complete these circuits, you'll need the following:
 
 - 1 x Breadboard
-- 1 x RGB LED
-- 3 x 330ohm Resistor
-- 7 x M-F Jumper cables
-- 6 x M-M Jumper cables
+- 10 x M-F Jumper cables
+- 11 x M-M Jumper cables
 - 1 x Analog Potentiometer
-- 1 x Analog Photoresistor
-- 1 x ADC1115 Analog-to-Digital Converter
+- 1 x HD44780 Based 16x2 LCD Screen
+- 1 x Push button
+- 1 x Piezo Buzzer
 
 ## New Concepts
 
-### Pulse Width Modulation (PWM)
-
-[PWM](https://en.wikipedia.org/wiki/Pulse-width_modulation) switches a circuit on and off an an incredibly high frequency in order to provide it with a lower percentage of total power.  For an LED, this allows us to do things such as increase or decrease the brightness.  It's also commonly used for things like motors or servos to limit the speed of the device.
-
-The Raspberry Pi can do software PWM on any of its pins, but it has four pins that are dedicated to PWM, separated into two channels (gpios 12 and 18) and (gpios 13 and 19).
+There are no new concepts in this circuit.

@@ -11,12 +11,6 @@ There are no challenge implementations for this circuit as they don't diverge fr
 ## Hardware
 
 In order to complete these circuits, you'll need the following:
-- 1 x Breadboard
-- 1 x Common Annode RGB LED
-- 4 x 330ohm Resistor
-- 1 x 470ohm Resistor
-
-
 
 - 1 x Breadboard
 - 9 x M-F Jumper cables

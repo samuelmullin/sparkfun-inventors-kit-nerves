@@ -1,8 +1,8 @@
-# Circuit 1D - RGB LED
+# Circuit 4B - Temperature Sensor LCD Display
 
 ## Overview
 
-In [Circuit 1D](./base), you'll control an RGB LED using a photoresistor, potentiometer, ADC and PWM controller.  The breadboard is going to be a mess so be careful with those connections!
+In [Circuit 4B](./base), you'll build on the LCD screen circuit from [Circuit 4A](../circuit4a) by adding an analog temperature sensor and displaying it's output on the LCD.
 
 ## Challenges
 
@@ -13,18 +13,16 @@ There are no challenge implementations for this circuit as they don't diverge fr
 In order to complete these circuits, you'll need the following:
 
 - 1 x Breadboard
-- 1 x RGB LED
-- 3 x 330ohm Resistor
-- 7 x M-F Jumper cables
-- 6 x M-M Jumper cables
+- 10 x M-F Jumper cables
+- 14 x M-M Jumper cables
 - 1 x Analog Potentiometer
-- 1 x Analog Photoresistor
-- 1 x ADC1115 Analog-to-Digital Converter
+- 1 x HD44780 Based 16x2 LCD Screen
+- 1 x ADS1115 Analog-to-Digital Converter
+- 1 x TMP36 analog temperature sensor
+
 
 ## New Concepts
 
-### Pulse Width Modulation (PWM)
+### TMP36 Temperature Sensor
 
-[PWM](https://en.wikipedia.org/wiki/Pulse-width_modulation) switches a circuit on and off an an incredibly high frequency in order to provide it with a lower percentage of total power.  For an LED, this allows us to do things such as increase or decrease the brightness.  It's also commonly used for things like motors or servos to limit the speed of the device.
-
-The Raspberry Pi can do software PWM on any of its pins, but it has four pins that are dedicated to PWM, separated into two channels (gpios 12 and 18) and (gpios 13 and 19).
+The [TMP36 analog temperature sensor](https://www.sparkfun.com/products/10988) increases it's resistance based on the temperature it's exposed to.  It has a range of –40°C to +125°C.  Because it's an analog sensor, we need to pair it with an Analog to Digital converter (we'll use the ADS1115).

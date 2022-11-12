@@ -29,13 +29,11 @@ config :logger, backends: [RingLogger]
 config :circuit4c,
   lcd_config: %{
     pin_rs: 21,
-    pin_rw: 20,
     pin_en: 16,
     pin_d4: 22,
     pin_d5: 23,
     pin_d6: 24,
-    pin_d7: 25,
-    pin_led: 4
+    pin_d7: 25
   },
   buzzer_pin: 12,
   button_pin: 18

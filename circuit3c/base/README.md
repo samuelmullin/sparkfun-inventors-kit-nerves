@@ -23,7 +23,7 @@ In order to complete this circuit, you'll need the following:
 - 1 x HC-SR04 Ultrasonic Distance Sensor
 - 1 x Micro Servo
 - 1 x Piezo buzzer
-- 
+  
 ## Wiring
 
 There's a lot going on here, so let's break this up:

@@ -19,7 +19,7 @@ In order to complete these circuits, you'll need the following:
 - 6 x M-M Jumper cables
 - 1 x Analog Potentiometer
 - 1 x Analog Photoresistor
-- 1 x ADC1115 Analog-to-Digital Converter
+- 1 x ADS1115 Analog-to-Digital Converter
 
 ## New Concepts
 
