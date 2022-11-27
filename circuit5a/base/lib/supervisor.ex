@@ -5,17 +5,10 @@ defmodule Circuit5a.Supervisor do
   end
 
   def init(:ok) do
+    tb6612_config = Application.fetch_env!(:circuit5a, :tb6612_config)
     children = [
       Circuit5a.Motor,
-      {TB6612FNG, [
-        standby_pin: 21,
-        motor_a: [
-          pwm_pin: 12,
-          in01_pin: 20,
-          in02_pin: 16,
-          name: :motor_a
-        ]
-      ]}
+      {TB6612FNG, tb6612_config}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
