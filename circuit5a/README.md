@@ -1,8 +1,8 @@
-# Circuit 1D - RGB LED
+# Circuit 5a - Motor
 
 ## Overview
 
-In [Circuit 1D](./base), you'll control an RGB LED using a photoresistor, potentiometer, ADC and PWM controller.  The breadboard is going to be a mess so be careful with those connections!
+In [Circuit 5A](./base), you'll control a simple motor using the Raspberry Pi and the TB6612FNG motor driver.
 
 ## Challenges
 
@@ -13,18 +13,20 @@ There are no challenge implementations for this circuit as they don't diverge fr
 In order to complete these circuits, you'll need the following:
 
 - 1 x Breadboard
-- 1 x RGB LED
-- 3 x 330ohm Resistor
-- 7 x M-F Jumper cables
-- 6 x M-M Jumper cables
-- 1 x Analog Potentiometer
-- 1 x Analog Photoresistor
-- 1 x ADC1115 Analog-to-Digital Converter
+- 1 x TB6612FNG Motor Driver
+- 1 x DG01D Motor (+ Wheel)
+- 1 x External Battery Pack
+- 1 x SPST switch
+- 6 x M-F Jumper cables
+- 5 x M-M Jumper cables
 
 ## New Concepts
 
-### Pulse Width Modulation (PWM)
+### TB6612FNG Motor Driver
 
-[PWM](https://en.wikipedia.org/wiki/Pulse-width_modulation) switches a circuit on and off an an incredibly high frequency in order to provide it with a lower percentage of total power.  For an LED, this allows us to do things such as increase or decrease the brightness.  It's also commonly used for things like motors or servos to limit the speed of the device.
+The TB6612FNG allows for the control of two DC Motors at a peak output of 3.2A.  It has three inputs per motor - two GPIO to control direction and one PWM to control speed.  In addition to speed/direction, the motor supports both stopping (disabling output but allowing the motor to continue turning using it's inertia) and braking (stopping the motor from turning).
 
-The Raspberry Pi can do software PWM on any of its pins, but it has four pins that are dedicated to PWM, separated into two channels (gpios 12 and 18) and (gpios 13 and 19).
+### DC Motor
+
+A [direct-current (DC) motor](https://en.wikipedia.org/wiki/DC_motor) converts direct energy into mechanical energy.  DC Motors have gearing that allows them to perform specific tasks - such as having high torque for moving objects or spinning quickly to turn a fan or a wheel.
+

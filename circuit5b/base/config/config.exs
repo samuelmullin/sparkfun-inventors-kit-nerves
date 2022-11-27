@@ -27,7 +27,22 @@ config :nerves, source_date_epoch: "1646185297"
 config :logger, backends: [RingLogger]
 
 config :circuit5b,
-  switch_pin: 4
+  switch_pin: 4,
+  tb6612_config: [
+    standby_pin: 21,
+    motor_a: [
+      pwm_pin: 12,
+      in01_pin: 20,
+      in02_pin: 16,
+      name: :motor_a
+    ],
+    motor_b: [
+      pwm_pin: 13,
+      in01_pin: 5,
+      in02_pin: 6,
+      name: :motor_b
+    ]
+  ]
 
 if Mix.target() == :host or Mix.target() == :"" do
   import_config "host.exs"
